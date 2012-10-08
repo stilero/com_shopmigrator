@@ -1,11 +1,11 @@
 <?php
 /**
- * Description of Shop_Migrator
+ * Description of ShopMigrator
  *
  * @version  1.0
  * @author Daniel Eliasson Stilero Webdesign http://www.stilero.com
  * @copyright  (C) 2012-okt-07 Stilero Webdesign, Stilero AB
- * @category Components
+ * @category Plugins
  * @license	GPLv2
  * 
  * Joomla! is free software. This version may have been modified pursuant
@@ -13,42 +13,31 @@
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
  * 
- * This file is part of controller.
+ * This file is part of shopmigratorstatus.
  * 
- * Shop_Migrator is free software: you can redistribute it and/or modify
+ * ShopMigrator is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * Shop_Migrator is distributed in the hope that it will be useful,
+ * ShopMigrator is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Shop_Migrator.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ShopMigrator.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
 
-// import joomla controller library
-jimport('joomla.application.component.controller');
-
-class ShopmigratorController extends JController{
+class ShopMigratorStatus{
     
-    public static $modelName = 'shops';
-    public static $viewName = 'shops';
-    
-    public function display(){
-        //Set Default View and Model
-        $view =& $this->getView( self::$viewName, 'html' );
-        JRequest::setVar('view', $view);
-        $model =& $this->getModel(  self::$modelName );
-        $view->setModel( $model, true );
-        $view->display();
-    }
-    
+    const CREATED = '0';
+    const COMPLETED = '1';
+    const PROGRESSING = '2';
+    const PAUSED = '3';
     
 }

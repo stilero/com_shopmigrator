@@ -40,118 +40,94 @@ defined('_JEXEC') or die('Restricted access');
             <table class="admintable">
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="title">
-                        <?php echo JText::_( 'Movie Title' ); ?>:
+                        <label for="name">
+                        <?php echo JText::_( 'Name' ); ?>:
                         </label>
                     </td>
                     <td>
                         <input class="inputbox" type="text"
-                        name="title" id="title" size="25"
-                        value="<?php echo $this->revue->title;?>" />
+                        name="name" id="name" size="25"
+                        value="<?php echo $this->item->name;?>" />
                     </td>
                 </tr>
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="rating">
-                            <?php echo JText::_( 'Rating' ); ?>:
+                        <label for="url">
+                            <?php echo JText::_( 'URL' ); ?>:
                         </label>
                     </td>
                     <td>
                         <input class="inputbox" type="text"
-                        name="rating" id="rating" size="10"
-                        value="<?php echo $this->revue->rating;?>" />
+                        name="url" id="url" size="10"
+                        value="<?php echo $this->item->url;?>" />
                     </td>
                 </tr>
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="quikquip">
-                            <?php echo JText::_( 'Quik Quip' ); ?>:
+                        <label for="db_id">
+                            <?php echo JText::_( 'Database' ); ?>:
                         </label>
                     </td>
                     <td>
                         <input class="text_area" type="text"
-                        name="quikquip" id="quikquip"
+                        name="db_id" id="db_id"
                         size="32" maxlength="250"
-                        value="<?php echo $this->revue->quikquip;?>" />
+                        value="<?php echo $this->item->db_id;?>" />
                     </td>
                 </tr>
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="revuer">
-                            <?php echo JText::_( 'Revuer' ); ?>:
+                        <label for="shop_system_id">
+                            <?php echo JText::_( 'Shop system' ); ?>:
                         </label>
                     </td>
                     <td>
                         <input class="inputbox" type="text"
-                        name="revuer" id="revuer" size="50"
-                        value="<?php echo $this->revue->revuer;?>" />
+                        name="shop_system_id" id="shop_system_id" size="50"
+                        value="<?php echo $this->item->shop_system_id;?>" />
                     </td>
                 </tr>
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="stars">
-                            <?php echo JText::_( 'Stars' ); ?>:
+                        <label for="status_id">
+                            <?php echo JText::_( 'Status' ); ?>:
                         </label>
                     </td>
                     <td>
                         <input class="inputbox" type="text" 
-                               name="stars" id="stars" size="10" maxlength="5" 
-                               value="<?php echo $this->revue->stars;?>" />
+                               name="status_id" id="status_id" size="10" maxlength="5" 
+                               value="<?php echo $this->item->status_id;?>" />
                     </td>
                 </tr>
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="revued">
-                            <?php echo JText::_( 'Date Revued' ); ?>:
+                        <label for="created">
+                            <?php echo JText::_( 'Created' ); ?>:
                         </label>
                     </td>
                     <td>
                         <?php echo JHTML::_( 'calendar',
                         JHTML::_('date',
-                        $this->revue->revued,
-                        JTEXT::_('%m/%d/%Y')),
-                        'revued',
-                        'revued',
-                        '%m/%d/%Y',
+                        $this->item->created,
+                        JTEXT::_('m/d/Y')),
+                        'created',
+                        'created',
+                        'm/d/Y',
                         array( 'class'=>'inputbox',
                         'size'=>'25',
                         'maxlength'=>'19' ) ); ?>
                     </td>
                 </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="revue">
-                            <?php echo JText::_( 'Revue' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <input class="text_area" type="text" 
-                               name="revue" id="revue" size="50" 
-                               maxlength="250" 
-                               value="<?php echo $this->revue->revue;?>" />
-                    </td>
-                </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="published">
-                            <?php echo JText::_( 'Published' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <?php echo JHTML::_( 'select.booleanlist', 
-                                'published', 
-                                'class="inputbox"', 
-                                $this->revue->published ); 
-                        ?>
-                    </td>
-                </tr>
+               
             </table>
         </fieldset>
     </div>
     <div class="clr"></div>
     <input type="hidden" name="option"
     value="<?php echo JRequest::getVar( 'option' ); ?>" />
+    <input type="hidden" name="view"
+           value="<?php echo JRequest::getCmd( 'view' ); ?>" />
     <input type="hidden" name="id"
-    value="<?php echo $this->revue->id; ?>" />
+    value="<?php echo $this->item->id; ?>" />
     <input type="hidden" name="task" value="" />
 </form>

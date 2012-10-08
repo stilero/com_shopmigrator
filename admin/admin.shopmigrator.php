@@ -35,6 +35,7 @@ defined('_JEXEC') or die('Restricted access');
 
 JHTML::addIncludePath(JPATH_COMPONENT.DS.'helpers');
 require_once JPATH_COMPONENT.DS.'controller.php';
+require_once JPATH_COMPONENT.DS.'helpers'.DS.'comShopMigratorAdminListHelper.php';
 $controller = JRequest::getWord('view');
 
 if ( $controller) { 

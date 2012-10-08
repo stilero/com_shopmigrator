@@ -28,18 +28,13 @@
 		<filename>shopmigrator.php</filename>
                 <filename>controller.php</filename>
 		<folder>models</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
 		<folder>views</folder>
 	</files>
-        <media destination="shopmigrator">
-            <folder>assets/js</folder>
-            <folder>assets/images</folder>
-            <folder>assets/css</folder>
-        </media>
 	<languages folder="language">
             <language tag="en-GB">site/language/en-GB.com_shopmigrator.ini</language>
-            <language tag="sv-SE">site/language/sv-SE.com_shopmigrator.ini</language>
             <language tag="en-GB">site/language/en-GB.com_shopmigrator.sys.ini</language>
-            <language tag="sv-SE">site/language/sv-SE.com_shopmigrator.sys.ini</language>
         </languages>
 	<!-- Standard plugin parameters for Joomla! 1.5 -->	
 	<params addfieldpath="/plugins/content/elements">
@@ -93,18 +88,19 @@
             <files folder="admin">
                     <!-- Admin Main File Copy Section -->
                     <filename>index.html</filename>
-                    <filename>shopmigrator.php</filename>
+                    <filename>admin.shopmigrator.php</filename>
                     <filename>controller.php</filename>
                     <folder>views</folder>
+                    <folder>controllers</folder>
+                    <folder>helpers</folder>
+                    <folder>tables</folder>
                     <folder>models</folder>
                     <!-- SQL files section -->
                     <folder>sql</folder>
             </files>
             <languages folder="language">
 	       <language tag="en-GB">admin/language/en-GB.com_shopmigrator.ini</language>
-	       <language tag="sv-SE">admin/language/sv-SE.com_shopmigrator.ini</language>
                <language tag="en-GB">admin/language/en-GB.com_shopmigrator.ini</language>
-	       <language tag="sv-SE">admin/language/sv-SE.com_shopmigrator.ini</language>
 	    </languages>
 	</administration>
 </install>
