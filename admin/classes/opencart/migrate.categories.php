@@ -17,10 +17,12 @@ defined('_JEXEC') or die('Restricted access');
 class MigrateCategories extends Migrate{
     
     protected static $_catTableName = '#__category';
-    protected static $_destTable = '#__virtuemart_categories';
+    protected static $_vmCatTable = '#__virtuemart_categories';
     protected static $_catToStoreTableName = '#__category_to_store';
     protected static $_catDescTableName = '#__category_description';
     protected static $_vmCatTableName = '#__virtuemart_categories';
+    protected $srcImagesFolder;
+    protected static $destImagesFolder = 'images/stories/virtuemart/category/';
 
     public function __construct($MigrateSrcDB, $MigrateDestDB, $storeid=0) {
         parent::__construct($MigrateSrcDB, $MigrateDestDB, $storeid=0);
@@ -39,6 +41,20 @@ class MigrateCategories extends Migrate{
         return $this->_items;
     } 
     
+    public function deleteMigratedCategories(){
+        $db =& $this->_destDB;
+        $categories = $this->getCategoriesForStore();
+        $catIds = array();
+        foreach ($categories as $category) {
+            $catIds[] = $category->category_id;
+        }
+        $query =& $db->getQuery(true);
+        $query->delete(self::$_vmCatTableName);
+        $query->where('virtuemart_category_id IN ('.implode(',',$catIds).')' );
+        $db->setQuery($query);
+        $results = $db->query();
+    }
+    
     public function getDescriptionForLang($langcode=1){
         $db =& $this->_sourceDB;
         $langKey = $db->nameQuote('language_id');
@@ -51,7 +67,22 @@ class MigrateCategories extends Migrate{
         return $this->_items;
     }
     
-    public function setCategories(){
+    public function getImages(){
+        $db =& $this->_sourceDB;
+        $query =& $db->getQuery(true);
+        $query->select('c.category_id', 'c.image');
+        $query->from(self::$_catTableName.' c');
+        $query->where('c.image != ""');
+        $db->setQuery($query);
+        $result = $db->loadObjectList();
+        return $result;
+    }
+    
+    public function insertCategoryImage($path, $catid){
+        
+    }
+    
+    public function migrateCategories(){
         $db =& $this->_destDB;
         $ocCategories = $this->getCategoriesForStore();
         $table = $db->nameQuote(self::$_vmCatTableName);
@@ -72,5 +103,23 @@ class MigrateCategories extends Migrate{
         $results = $db->query();
         return $results;                
     }
+    
+    public function copyImages($srcImageFolderURL){
+        $images = $this->getImages();
+        foreach ($images as $image) {
+            $scr = $srcImageFolderURL.$image->image;
+            $srcFilename = JFile::getName($scr);
+            $dest = self::$destImagesFolder.$srcFilename;
+            $file =& JFile::copy($src, $dest);
+        }
+    }
+    
+    public function __set($name, $value) {
+        $this->$name = $value;
+    }
+    
+    
+    
+    
     
 }
