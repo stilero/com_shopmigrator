@@ -18,26 +18,41 @@ class Migrate{
     
     protected $_srcDB;
     protected $_storeid;
+    protected $_storeUrl;
     protected $_sourceDB;
     protected $_destDB;
     protected $_sourceData;
     protected $_destinationData;
+    protected $_error = array();
     
-    public function __construct($MigrateSrcDB, $MigrateDestDB, $storeid=0) {
+    public function __construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid=0) {
         $this->_sourceDB =& $MigrateSrcDB;
         $this->_destDB =& $MigrateDestDB;
         $this->_storeid = $storeid;
+        $this->_storeUrl = $storeUrl;
     }
     
-    function getSourceData(){
-        
+    public function migrateFile($srcFile, $destPath='images/stories/virtuemart/'){
+        $destFile = JPATH_BASE.DS.$destPath.JFile::getName($srcFile);
+        $tmpFile = JPATH_BASE.DS.'tmp'.DS.JFile::getName($srcFile);
+        $content = file_get_contents($srcFile);
+        file_put_contents($tmpFile, $content);
+        JFile::move($tmpFile, $destFile);
+        if( ! JFile::exists($destFile)){
+            print "file not found";
+            return false;
+        }
+        return $destFile;
     }
     
-    function setDestinationData(){
-        
+    public function resizeImage($bigImagePath, $height, $width, $savePath){
+        $image = new JImage($bigImagePath);
+        $resized = $image->resize($width, $height, true, JImage::SCALE_INSIDE);
+        $resized->toFile($savePath);
     }
     
-    function convertDestinationData(){
-        
+    public function __get($name) {
+        return $this->$name;
     }
+    
 }
