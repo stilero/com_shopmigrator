@@ -34,8 +34,8 @@ class MigrateCategories extends Migrate{
     }
     
     public function getCategoriesForStore($langcode=1){
-        if(isset($this->_items)){
-            return $this->_items;
+        if(isset($this->_sourceData)){
+            return $this->_sourceData;
         }
         $db =& $this->_sourceDB;
         //$db =& JFactory::getDbo();
@@ -46,8 +46,8 @@ class MigrateCategories extends Migrate{
         $query->innerJoin(self::$_catDescTable.' dsc ON dsc.category_id=cts.category_id');
         $query->where('cts.store_id = '.(int)$this->_storeid.' AND dsc.language_id='.(int)$langcode);
         $db->setQuery($query);
-        $this->_items = $db->loadObjectList();
-        return $this->_items;
+        $this->_sourceData = $db->loadObjectList();
+        return $this->_sourceData;
     } 
     
     public function deleteMigratedCategories(){
