@@ -47,7 +47,49 @@ class MigrateManufacturer extends Migrate{
         return $this->_sourceData;
     }
     
+    public function clearData(){
+        $isSuccessful = true;
+        $db =& $this->_destDB;
+        $query = $db->getQuery(true);
+        $query->delete(self::$_vmManuENGBTable);
+        $query->where('virtuemart_manufacturer_id > 1');
+        $db->setQuery($query);
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
+        
+        $query = $db->getQuery(true);
+        $query->delete(self::$_vmManuTable);
+        $query->where('virtuemart_manufacturer_id > 1');
+        $db->setQuery($query);
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
+        
+        $query = $db->getQuery(true);
+        $query->delete(self::$_vmManuENGBTable);
+        $query->where('virtuemart_manufacturer_id > 1');
+        $db->setQuery($query);
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
+        
+        $query = $db->getQuery(true);
+        $query->delete(self::$_vmManufacturerMediasTable);
+        $query->where('virtuemart_manufacturer_id > 1');
+        $db->setQuery($query);
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
+        return $isSuccessful;
+    }
+    
     protected function setManufacturer($id, $name){
+        $isSuccessful = true;
         $slug = strtolower(str_replace(' ', '', $name));
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
@@ -56,24 +98,34 @@ class MigrateManufacturer extends Migrate{
         $query->set('mf_name = '.$db->quote($name));
         $query->set('slug = '.$db->quote($slug));
         $db->setQuery($query);
-        $db->query();
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
         
         $query = $db->getQuery(true);
         $query->insert(self::$_vmManuTable);
         $query->set('virtuemart_manufacturer_id = '.(int)$id);
         $query->set('virtuemart_manufacturercategories_id = 1');
         $db->setQuery($query);
-        $db->query();
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
+        return (bool)$isSuccessful;
     }
     
     public function migrateManufacturers(){
+        $isSuccessful = true;
         $manufacturers = $this->getData();
         foreach ($manufacturers as $manufacturer) {
-            $this->setManufacturer($manufacturer->manufacturer_id, $manufacturer->name);
+            $isSuccessful *= $this->setManufacturer($manufacturer->manufacturer_id, $manufacturer->name);
         }
+        return (bool)$isSuccessful;
     }
     
     protected function setImage($id, $bigImage, $thumbImage){
+        $isSuccessful = true;
         $file_title = str_replace('.'.JFile::getExt($bigImage), '', JFile::getName($bigImage));
         $imgprop = JImage::getImageFileProperties($bigImage);
         $mime_type = $imgprop->type;
@@ -92,6 +144,7 @@ class MigrateManufacturer extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed Setting image for Manufacturer '.$id);
+            $isSuccessful = false;
         }
         $lastRowId = $db->insertid();
         $query2 = $db->getQuery(true);
@@ -102,10 +155,13 @@ class MigrateManufacturer extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting image for Manufacturer in media '.$catId);
+            $isSuccessful *= false;
         }
+        return (bool)$isSuccessful;
     }
     
     public function migrateImages(){
+        $isSuccessful = true;
         $images = $this->getData();
         foreach ($images as $image) {
             if($image->image != ''){
@@ -113,12 +169,13 @@ class MigrateManufacturer extends Migrate{
                 $thumbImage = self::$destImagesThumbFolder.JFile::getName($bigImage);
                  $this->resizeImage($bigImage, 90, 90, JPATH_BASE.DS.$thumbImage);
                 if($bigImage != FALSE){
-                    $this->setImage($image->manufacturer_id, $bigImage, $thumbImage);
+                    $isSuccessful *= $this->setImage($image->manufacturer_id, $bigImage, $thumbImage);
                  }else{
                      $this->error[] = array(MigrateError::FILE_MOVE_PROBLEM => $bigImage);
+                     $isSuccessful *= false;
                  }
             }
         }
-        return true;
+        return (bool)$isSuccessful;
     }
 }
