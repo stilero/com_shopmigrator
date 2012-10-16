@@ -24,11 +24,29 @@ class MigrateManufacturer extends Migrate{
     protected static $_vmManufacturerMediasTable = '#__virtuemart_manufacturer_medias';
     protected static $destImagesFolder = 'images/stories/virtuemart/manufacturer/';
     protected static $destImagesThumbFolder = 'images/stories/virtuemart/manufacturer/resized/';
-
+    protected  $srcImagesFolderURL;
+    protected $_vmImagePath;
+    protected $_vmThumbPath;
+    protected $_thumbWidth;
+    protected $_thumbHeight;
 
     public function __construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid=0) {
         parent::__construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid);
         $this->srcImagesFolderURL = $storeUrl.'image/';
+        $this->_vmImagePath = self::$destImagesFolder;
+        $this->_vmThumbPath = self::$destImagesThumbFolder;
+        $this->_thumbHeight = 90;
+        $this->_thumbWidth = 90;
+    }
+    
+    public function setImageFolder($folderPathRelativeToJoomlaRoot){
+        $this->_vmImagePath = $folderPathRelativeToJoomlaRoot;
+        $this->_vmThumbPath = $folderPathRelativeToJoomlaRoot.'resized/';
+    }
+    
+    public function setThumbSize($width, $height){
+        $this->_thumbHeight = $height;
+        $this->_thumbWidth = $width;
     }
     
     public function getData(){
@@ -49,43 +67,23 @@ class MigrateManufacturer extends Migrate{
     
     public function clearData(){
         $isSuccessful = true;
+        $tables = array(
+            self::$_vmManuENGBTable,
+            self::$_vmManuTable,
+            self::$_vmManufacturerMediasTable
+        );
         $db =& $this->_destDB;
-        $query = $db->getQuery(true);
-        $query->delete(self::$_vmManuENGBTable);
-        $query->where('virtuemart_manufacturer_id > 1');
-        $db->setQuery($query);
-        $result = $db->query();
-        if(!$result){
-           $isSuccessful *= false;
+        foreach ($tables as $table) {
+            $query = $db->getQuery(true);
+            $query->delete($table);
+            $query->where('virtuemart_manufacturer_id > 1');
+            $db->setQuery($query);
+            $result = $db->query();
+            if(!$result){
+               $isSuccessful *= false;
+            }
         }
-        
-        $query = $db->getQuery(true);
-        $query->delete(self::$_vmManuTable);
-        $query->where('virtuemart_manufacturer_id > 1');
-        $db->setQuery($query);
-        $result = $db->query();
-        if(!$result){
-           $isSuccessful *= false;
-        }
-        
-        $query = $db->getQuery(true);
-        $query->delete(self::$_vmManuENGBTable);
-        $query->where('virtuemart_manufacturer_id > 1');
-        $db->setQuery($query);
-        $result = $db->query();
-        if(!$result){
-           $isSuccessful *= false;
-        }
-        
-        $query = $db->getQuery(true);
-        $query->delete(self::$_vmManufacturerMediasTable);
-        $query->where('virtuemart_manufacturer_id > 1');
-        $db->setQuery($query);
-        $result = $db->query();
-        if(!$result){
-           $isSuccessful *= false;
-        }
-        return $isSuccessful;
+        return (bool)$isSuccessful;
     }
     
     protected function setManufacturer($id, $name){
@@ -102,7 +100,6 @@ class MigrateManufacturer extends Migrate{
         if(!$result){
            $isSuccessful *= false;
         }
-        
         $query = $db->getQuery(true);
         $query->insert(self::$_vmManuTable);
         $query->set('virtuemart_manufacturer_id = '.(int)$id);
@@ -165,9 +162,9 @@ class MigrateManufacturer extends Migrate{
         $images = $this->getData();
         foreach ($images as $image) {
             if($image->image != ''){
-                $bigImage = $this->migrateFile($image->imageurl, self::$destImagesFolder);
-                $thumbImage = self::$destImagesThumbFolder.JFile::getName($bigImage);
-                 $this->resizeImage($bigImage, 90, 90, JPATH_BASE.DS.$thumbImage);
+                $bigImage = $this->migrateFile($image->imageurl, $this->_vmImagePath);
+                $thumbImage = $this->_vmThumbPath.JFile::getName($bigImage);
+                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_BASE.DS.$thumbImage);
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->manufacturer_id, $bigImage, $thumbImage);
                  }else{

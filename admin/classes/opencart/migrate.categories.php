@@ -24,13 +24,32 @@ class MigrateCategories extends Migrate{
     protected static $_vmCatMediaTable = '#__virtuemart_category_medias';
     protected static $_vmCatDescTable = '#__virtuemart_categories_en_gb';
     protected static $_vmCatCatsTable = '#__virtuemart_category_categories';
-    protected  $srcImagesFolderURL;
     protected static $destImagesFolder = 'images/stories/virtuemart/category/';
     protected static $destImagesThumbFolder = 'images/stories/virtuemart/category/resized/';
+    protected  $srcImagesFolderURL;
+    protected $_vmImagePath;
+    protected $_vmThumbPath;
+    protected $_thumbWidth;
+    protected $_thumbHeight;
+
 
     public function __construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid=0) {
         parent::__construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid);
         $this->srcImagesFolderURL = $storeUrl.'image/';
+        $this->_vmImagePath = self::$destImagesFolder;
+        $this->_vmThumbPath = self::$destImagesThumbFolder;
+        $this->_thumbHeight = 90;
+        $this->_thumbWidth = 90;
+    }
+    
+    public function setImageFolder($folderPathRelativeToJoomlaRoot){
+        $this->_vmImagePath = $folderPathRelativeToJoomlaRoot;
+        $this->_vmThumbPath = $folderPathRelativeToJoomlaRoot.'resized/';
+    }
+    
+    public function setThumbSize($width, $height){
+        $this->_thumbHeight = $height;
+        $this->_thumbWidth = $width;
     }
     
     public function getCategoriesForStore($langcode=1){
@@ -38,7 +57,6 @@ class MigrateCategories extends Migrate{
             return $this->_sourceData;
         }
         $db =& $this->_sourceDB;
-        //$db =& JFactory::getDbo();
         $query = $db->getQuery(true);
         $query->select('cat.*, dsc.name, dsc.description, dsc.meta_description, dsc.meta_keyword, CONCAT(\''.$this->srcImagesFolderURL.'\', cat.image) AS \'imageurl\'');
         $query->from(self::$_catToStoreTable.' cts');
@@ -50,68 +68,63 @@ class MigrateCategories extends Migrate{
         return $this->_sourceData;
     } 
     
-    public function deleteMigratedCategories(){
+    public function clearData(){
+        $isSuccessful = true;
+        $tables = array(
+            self::$_vmCatTable,
+            self::$_vmCatMediaTable,
+            self::$_vmCatDescTable
+        );
         $db =& $this->_destDB;
-        $categories = $this->getCategoriesForStore();
-        $catIds = array();
-        foreach ($categories as $category) {
-            $catIds[] = $category->category_id;
+        foreach ($tables as $table) {
+            $query = $db->getQuery(true);
+            $query->delete($table);
+            $query->where('virtuemart_category_id > 5');
+            $db->setQuery($query);
+            $result = $db->query();
+            if(!$result){
+               $isSuccessful *= false;
+            }
         }
-        $query =& $db->getQuery(true);
-        $query->delete(self::$_vmCatTable);
-        $query->where('virtuemart_category_id > 5' );
-        $db->setQuery($query);
-        $db->query();
-        
-        $query =& $db->getQuery(true);
-        $query->delete(self::$_vmCatMediaTable);
-        $query->where('virtuemart_category_id > 5' );
-        $db->setQuery($query);
-        $db->query();
-        
-        $query =& $db->getQuery(true);
-        $query->delete(self::$_vmCatDescTable);
-        $query->where('virtuemart_category_id > 5' );
-        $db->setQuery($query);
-        $db->query();
-        
         $query =& $db->getQuery(true);
         $query->delete(self::$_vmCatCatsTable);
         $query->where('category_child_id > 5' );
         $db->setQuery($query);
-        $db->query();
+        $result = $db->query();
+        if(!$result){
+           $isSuccessful *= false;
+        }
+        return (bool)$isSuccessful;
     }
     
-    protected function setDescription($catID, $catName, $catDesc, $metaDesc='', $metaKey=''){
-        $slug = strtolower(str_replace(' ', '', $catName));
+    protected function setDescription($desc){
+        $isSuccessful = true;
+        $slug = strtolower(str_replace(' ', '', $desc->name));
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
         $query->insert(self::$_vmCatDescTable);
-        $query->set('virtuemart_category_id = '.(int)$catID);
-        $query->set('category_name = '.$db->quote($catName));
-        $query->set('category_description = '.$db->quote($catDesc));
-        $query->set('metadesc = '.$db->quote($metaDesc));
-        $query->set('metakey = '.$db->quote($metaKey));
+        $query->set('virtuemart_category_id = '.(int)$desc->category_id);
+        $query->set('category_name = '.$db->quote($desc->name));
+        $query->set('category_description = '.$db->quote($desc->description));
+        $query->set('metadesc = '.$db->quote($desc->meta_description));
+        $query->set('metakey = '.$db->quote($desc->meta_keyword));
         $query->set('slug = '.$db->quote($slug));
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting category description'.$catId);
+            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting category description'.$desc->category_id);
+            $isSuccessful = false;
         }
+        return $isSuccessful;
     }
     
     public function migrateDescriptions(){
+        $isSuccessful = true;
         $descs = $this->getCategoriesForStore();
         foreach ($descs as $desc) {
-            $this->setDescription(
-                    $desc->category_id, 
-                    $desc->name, 
-                    $desc->description,
-                    $desc->meta_description,
-                    $desc->meta_keyword
-            );
+            $isSuccessful *= $this->setDescription($desc);
         }
-        return true;
+        return (bool)$isSuccessful;
     }
     
     protected function setCategory($catId){
@@ -128,15 +141,18 @@ class MigrateCategories extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting category '.$catId);
+            return $false;
         }
+        return true;
     }
     
     public function migrateCategories(){
+        $isSuccessful = true;
         $ocCategories = $this->getCategoriesForStore();
         foreach ($ocCategories as $ocCategory) {
-            $this->setCategory($ocCategory->category_id);
+            $isSuccessful *= $this->setCategory($ocCategory->category_id);
         }
-        return true;
+        return (bool)$isSuccessful;
     }
         
     protected function setCategoryCategories($catId, $parentId){
@@ -149,21 +165,22 @@ class MigrateCategories extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting Category Categories'.$catId);
-        }
-    }
-    
-    public function migrateCategoryCategories(){
-        $ocCategories = $this->getCategoriesForStore();
-        foreach ($ocCategories as $ocCategory) {
-            $result = $this->setCategoryCategories($ocCategory->category_id, $ocCategory->parent_id);
-            if(!$result){
-                $this->_error[] = array(MigrateError::DB_ERROR, $ocCategory->category_id);
-            }
+            return false;
         }
         return true;
     }
     
+    public function migrateCategoryCategories(){
+        $isSuccessful = true;
+        $ocCategories = $this->getCategoriesForStore();
+        foreach ($ocCategories as $ocCategory) {
+            $isSuccessful *= $this->setCategoryCategories($ocCategory->category_id, $ocCategory->parent_id);
+        }
+        return (bool)$isSuccessful;
+    }
+    
     protected function setImage($catID, $bigImage, $thumbImage){
+        $isSuccessful = true;
         $file_title = str_replace('.'.JFile::getExt($bigImage), '', JFile::getName($bigImage));
         $imgprop = JImage::getImageFileProperties($bigImage);
         $mime_type = $imgprop->type;
@@ -181,6 +198,7 @@ class MigrateCategories extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $isSuccessful = false;
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed Setting image for Cateogry '.$catId);
         }
         $lastRowId = $db->insertid();
@@ -192,24 +210,28 @@ class MigrateCategories extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting image for Category in media '.$catId);
+            $isSuccessful *= false;
         }
+        return $isSuccessful;
     }
     
     public function migrateImages(){
+        $isSuccessful = true;
         $images = $this->getCategoriesForStore();
         foreach ($images as $image) {
-            if($image->imageurl != $this->srcImagesFolderURL){
-                $bigImage = $this->migrateFile($image->imageurl, self::$destImagesFolder);
-                $thumbImage = self::$destImagesThumbFolder.JFile::getName($bigImage);
-                 $this->resizeImage($bigImage, 90, 90, JPATH_BASE.DS.$thumbImage);
+            if($image->image != ''){
+                $bigImage = $this->migrateFile($image->imageurl, $this->_vmImagePath);
+                $thumbImage = $this->_vmThumbPath.JFile::getName($bigImage);
+                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_BASE.DS.$thumbImage);
                 if($bigImage != FALSE){
-                    $this->setImage($image->category_id, $bigImage, $thumbImage);
+                    $isSuccessful *= $this->setImage($image->category_id, $bigImage, $thumbImage);
                  }else{
                      $error[] = array(MigrateError::FILE_MOVE_PROBLEM => $bigImage);
+                     $isSuccessful *= false;
                  }
             }
         }
-        return true;
+        return (bool)$isSuccessful;
     }
 
     

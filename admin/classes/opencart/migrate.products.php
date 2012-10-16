@@ -37,12 +37,30 @@ class MigrateProducts extends Migrate{
     protected  $srcImagesFolderURL;
     protected static $destImagesFolder = 'images/stories/virtuemart/category/';
     protected static $destImagesThumbFolder = 'images/stories/virtuemart/category/resized/';
+    protected $_vmImagePath;
+    protected $_vmThumbPath;
+    protected $_thumbWidth;
+    protected $_thumbHeight;
 
 
     public function __construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid=0, $vmCurrencyCode=144) {
         parent::__construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid);
         $this->srcImagesFolderURL = $storeUrl.'image/';
         $this->vmCurrencyCode = $vmCurrencyCode;
+        $this->_vmImagePath = self::$destImagesFolder;
+        $this->_vmThumbPath = self::$destImagesThumbFolder;
+        $this->_thumbHeight = 90;
+        $this->_thumbWidth = 90;
+    }
+    
+    public function setImageFolder($folderPathRelativeToJoomlaRoot){
+        $this->_vmImagePath = $folderPathRelativeToJoomlaRoot;
+        $this->_vmThumbPath = $folderPathRelativeToJoomlaRoot.'resized/';
+    }
+    
+    public function setThumbSize($width, $height){
+        $this->_thumbHeight = $height;
+        $this->_thumbWidth = $width;
     }
     
     public function getData(){
@@ -107,13 +125,11 @@ class MigrateProducts extends Migrate{
                $isSuccessful *= false;
             }
         }
-        
         return (bool)$isSuccessful;
         
     }
     
     protected function setProduct($product){
-        $isSuccessful = true;
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
         $query->insert(self::$_vmProductTable);
@@ -133,13 +149,12 @@ class MigrateProducts extends Migrate{
         $query->set('published = '.(int)$product->status);
         $query->set('created_on = '.$db->quote($product->date_added));
         $query->set('modified_on = '.$db->quote($product->date_modified));
-        print $query->dump();
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $isSuccessful = false;
+            return false;
         }
-        return $isSuccessful;
+        return true;
     }
     
     protected function setProductDescription($product){
@@ -221,9 +236,9 @@ class MigrateProducts extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting image for Product in media '.$catId);
-            $isSuccessful = false;
+            $isSuccessful *= false;
         }
-        return $isSuccessful;
+        return (bool)$isSuccessful;
     }
     
     public function migrateImages(){
@@ -231,9 +246,9 @@ class MigrateProducts extends Migrate{
         $images = $this->getImages();
         foreach ($images as $image) {
             if($image->image != ''){
-                $bigImage = $this->migrateFile($image->imageurl, self::$destImagesFolder);
-                $thumbImage = self::$destImagesThumbFolder.JFile::getName($bigImage);
-                 $this->resizeImage($bigImage, 90, 90, JPATH_BASE.DS.$thumbImage);
+                $bigImage = $this->migrateFile($image->imageurl, $this->_vmImagePath);
+                $thumbImage = $this->_vmThumbPath.JFile::getName($bigImage);
+                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_BASE.DS.$thumbImage);
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->product_id, $bigImage, $thumbImage);
                  }else{
