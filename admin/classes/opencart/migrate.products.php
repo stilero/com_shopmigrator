@@ -148,7 +148,7 @@ class MigrateProducts extends Migrate{
         $query->insert(self::$_vmProductDescTable);
         $query->set('virtuemart_product_id = '.(int)$product->product_id);
         $query->set('product_s_desc = '.$db->quote(JHtmlString::truncate(html_entity_decode($product->description), 160, true, false)));
-        $query->set('product_desc = '.$db->quote($product->description));
+        $query->set('product_desc = '.$db->quote(html_entity_decode($product->description)));
         $query->set('product_name = '.$db->quote($product->name));
         $query->set('metadesc = '.$db->quote($product->meta_description));
         $query->set('metakey = '.$db->quote($product->meta_keyword));
