@@ -92,8 +92,10 @@
                     <filename>controller.php</filename>
                     <folder>views</folder>
                     <folder>controllers</folder>
+                    <folder>classes</folder>
                     <folder>helpers</folder>
                     <folder>tables</folder>
+                    <folder>assets</folder>
                     <folder>models</folder>
                     <!-- SQL files section -->
                     <folder>sql</folder>

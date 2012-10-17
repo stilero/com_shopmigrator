@@ -59,7 +59,7 @@ class MigrateCategories extends Migrate{
         $db =& $this->_sourceDB;
         $query = $db->getQuery(true);
         $query->select('cat.*, dsc.name, dsc.description, dsc.meta_description, dsc.meta_keyword, CONCAT(\''.$this->srcImagesFolderURL.'\', cat.image) AS \'imageurl\'');
-        $query->from(self::$_catToStoreTable.' cts');
+        $query->from($db->nameQuote(self::$_catToStoreTable).' cts');
         $query->innerJoin(self::$_catTableName.' cat ON cat.category_id=cts.category_id');
         $query->innerJoin(self::$_catDescTable.' dsc ON dsc.category_id=cts.category_id');
         $query->where('cts.store_id = '.(int)$this->_storeid.' AND dsc.language_id='.(int)$langcode);
@@ -97,12 +97,33 @@ class MigrateCategories extends Migrate{
         return (bool)$isSuccessful;
     }
     
+    public function hasConflict(){
+        $db =& $this->_sourceDB;
+        $query = $db->getQuery(true);
+        $query->select('category_id');
+        $query->from($db->nameQuote(self::$_catToStoreTable));
+        $query->where('store_id = '.(int)$this->_storeid);
+        $db->setQuery($query);
+        $srcIds = $db->loadResultArray();
+        $db =& $this->_destDB;
+        $query = $db->getQuery(true);
+        $query->select('virtuemart_category_id');
+        $query->from($db->nameQuote(self::$_vmCatTable));
+        $query->where('virtuemart_category_id IN ('.implode(',', $srcIds).')');
+        $db->setQuery($query);
+        $result = $db->loadResultArray();
+        if($result){
+            return $result;
+        }
+        return false;
+    }
+    
     protected function setDescription($desc){
         $isSuccessful = true;
         $slug = strtolower(str_replace(' ', '', $desc->name));
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
-        $query->insert(self::$_vmCatDescTable);
+        $query->insert($db->nameQuote(self::$_vmCatDescTable));
         $query->set('virtuemart_category_id = '.(int)$desc->category_id);
         $query->set('category_name = '.$db->quote($desc->name));
         $query->set('category_description = '.$db->quote($desc->description));
@@ -130,7 +151,7 @@ class MigrateCategories extends Migrate{
     protected function setCategory($catId){
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
-        $query->insert(self::$_vmCatTable);
+        $query->insert($db->nameQuote(self::$_vmCatTable));
         $query->set('virtuemart_category_id = '.(int)$catId);
         $query->set('virtuemart_vendor_id = 1');
         $query->set('category_template = \'\'');
@@ -141,7 +162,7 @@ class MigrateCategories extends Migrate{
         $result = $db->query();
         if(!$result){
             $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting category '.$catId);
-            return $false;
+            return false;
         }
         return true;
     }
@@ -158,7 +179,7 @@ class MigrateCategories extends Migrate{
     protected function setCategoryCategories($catId, $parentId){
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
-        $query->insert(self::$_vmCatCatsTable);
+        $query->insert($db->nameQuote(self::$_vmCatCatsTable));
         $query->set('category_parent_id = '.(int)$parentId);
         $query->set('category_child_id = '.(int)$catId);
         $db->setQuery($query);
@@ -187,7 +208,7 @@ class MigrateCategories extends Migrate{
         $shortPath = str_replace(JPATH_ROOT.DS, '', $bigImage);
         $db =& $this->_destDB;
         $query = $db->getQuery(true);
-        $query->insert(self::$_vmMediasTable);
+        $query->insert($db->nameQuote(self::$_vmMediasTable));
         $query->set('virtuemart_vendor_id = 1');
         $query->set('file_title = '.$db->quote($file_title));
         $query->set('file_meta = '.$db->quote($file_title));
@@ -203,7 +224,7 @@ class MigrateCategories extends Migrate{
         }
         $lastRowId = $db->insertid();
         $query2 = $db->getQuery(true);
-        $query2->insert(self::$_vmCatMediaTable);
+        $query2->insert($db->nameQuote(self::$_vmCatMediaTable));
         $query2->set('virtuemart_category_id = '.(int)$catID);
         $query2->set('virtuemart_media_id = '.(int)$lastRowId);
         $db->setQuery($query2);
@@ -234,7 +255,6 @@ class MigrateCategories extends Migrate{
         return (bool)$isSuccessful;
     }
 
-    
     public function __set($name, $value) {
         $this->$name = $value;
     }

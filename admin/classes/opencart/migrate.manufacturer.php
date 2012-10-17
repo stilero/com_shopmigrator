@@ -86,6 +86,27 @@ class MigrateManufacturer extends Migrate{
         return (bool)$isSuccessful;
     }
     
+    public function hasConflict(){
+        $db =& $this->_sourceDB;
+        $query = $db->getQuery(true);
+        $query->select('manufacturer_id');
+        $query->from($db->nameQuote(self::$_manuToStoreTable));
+        $query->where('store_id = '.(int)$this->_storeid);
+        $db->setQuery($query);
+        $srcIds = $db->loadResultArray();
+        $db =& $this->_destDB;
+        $query = $db->getQuery(true);
+        $query->select('virtuemart_manufacturer_id');
+        $query->from($db->nameQuote(self::$_vmManuTable));
+        $query->where('virtuemart_manufacturer_id IN ('.implode(',', $srcIds).')');
+        $db->setQuery($query);
+        $result = $db->loadResultArray();
+        if($result){
+            return $result;
+        }
+        return false;
+    }
+    
     protected function setManufacturer($id, $name){
         $isSuccessful = true;
         $slug = strtolower(str_replace(' ', '', $name));

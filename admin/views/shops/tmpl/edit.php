@@ -89,33 +89,14 @@ defined('_JEXEC') or die('Restricted access');
                 </tr>
                 <tr>
                     <td width="100" align="right" class="key">
-                        <label for="status_id">
+                        <label for="status">
                             <?php echo JText::_( 'Status' ); ?>:
                         </label>
                     </td>
                     <td>
                         <input class="inputbox" type="text" 
-                               name="status_id" id="status_id" size="10" maxlength="5" 
-                               value="<?php echo $this->item->status_id;?>" />
-                    </td>
-                </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="created">
-                            <?php echo JText::_( 'Created' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <?php echo JHTML::_( 'calendar',
-                        JHTML::_('date',
-                        $this->item->created,
-                        JTEXT::_('m/d/Y')),
-                        'created',
-                        'created',
-                        'm/d/Y',
-                        array( 'class'=>'inputbox',
-                        'size'=>'25',
-                        'maxlength'=>'19' ) ); ?>
+                               name="status" id="status" size="10" maxlength="5" 
+                               value="<?php echo $this->item->status;?>" />
                     </td>
                 </tr>
                

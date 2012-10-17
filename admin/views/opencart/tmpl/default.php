@@ -4,7 +4,7 @@
  *
  * @version  1.0
  * @author Daniel Eliasson Stilero Webdesign http://www.stilero.com
- * @copyright  (C) 2012-okt-07 Stilero Webdesign, Stilero AB
+ * @copyright  (C) 2012-okt-17 Stilero Webdesign, Stilero AB
  * @category Components
  * @license	GPLv2
  * 
@@ -13,7 +13,7 @@
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
  * 
- * This file is part of shops.
+ * This file is part of default.
  * 
  * ShopMigrator is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +32,10 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
- 
-class TableShops extends JTable{
-    var $id = 0;
-    var $name = '';
-    var $url = '';
-    var $db_id = '';
-    var $shop_system_id = '';
-    var $status = '';
-    
-    function __construct( &$db ){
-        parent::__construct('#__shopmigrator_shops','id',$db);
-    }
-}
+?>
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <title>Testing</title>
+    <body><p>Works</p></body>
+</html>

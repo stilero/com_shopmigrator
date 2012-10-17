@@ -78,6 +78,26 @@ class MigrateUsers extends Migrate{
         return (bool)$isSuccessful;
     }
     
+    public function hasConflict(){
+        $db =& $this->_sourceDB;
+        $query = $db->getQuery(true);
+        $query->select('customer_id');
+        $query->from($db->nameQuote(self::$_customerTable));
+        $db->setQuery($query);
+        $srcIds = $db->loadResultArray();
+        $db =& $this->_destDB;
+        $query = $db->getQuery(true);
+        $query->select('id');
+        $query->from($db->nameQuote(self::$_vmUsersTable));
+        $query->where('id IN ('.implode(',', $srcIds).')');
+        $db->setQuery($query);
+        $result = $db->loadResultArray();
+        if($result){
+            return $result;
+        }
+        return false;
+    }
+    
     protected function setUser($user){
         $db =& $this->_destDB;
         $tempPass = substr(base64_encode(uniqid()), 0, 8);
@@ -108,7 +128,6 @@ class MigrateUsers extends Migrate{
         $query->select('*');
         $query->from(self::$_vmCountryTable);
         $query->where('country_2_code = '.$db->quote($twoLetterIsoCode));
-        print $query->dump();
         $db->setQuery($query);
         $item = $db->loadObject();
         return $item;

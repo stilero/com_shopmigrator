@@ -129,6 +129,27 @@ class MigrateProducts extends Migrate{
         
     }
     
+    public function hasConflict(){
+        $db =& $this->_sourceDB;
+        $query = $db->getQuery(true);
+        $query->select('product_id');
+        $query->from($db->nameQuote(self::$_prodToStoreTable));
+        $query->where('store_id = '.(int)$this->_storeid);
+        $db->setQuery($query);
+        $srcIds = $db->loadResultArray();
+        $db =& $this->_destDB;
+        $query = $db->getQuery(true);
+        $query->select('virtuemart_product_id');
+        $query->from($db->nameQuote(self::$_vmProductTable));
+        $query->where('virtuemart_product_id IN ('.implode(',', $srcIds).')');
+        $db->setQuery($query);
+        $result = $db->loadResultArray();
+        if($result){
+            return $result;
+        }
+        return false;
+    }
+    
     protected function setProduct($product){
         $db =& $this->_destDB;
         $query = $db->getQuery(true);

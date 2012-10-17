@@ -31,7 +31,7 @@ class MigratorModel extends JModel{
         $db =& JFactory::getDbo();
         $query = $db->getQuery(true);
         $query->select('*');
-        $query->from($this->_tableName);
+        $query->from($db->quoteName($this->_tableName));
         $db->setQuery($query);
         $this->_items = $db->loadObjectList();
         return $this->_items;
@@ -41,7 +41,7 @@ class MigratorModel extends JModel{
         $db =& JFactory::getDbo();
         $query = $db->getQuery(true);
         $query->select('*');
-        $query->from($this->_tableName);
+        $query->from($db->quoteName($this->_tableName));
         $query->where('id='.(int)$id);
         $db->setQuery($query);
         $item = $db->loadObject();
@@ -58,23 +58,19 @@ class MigratorModel extends JModel{
         return $newItem;
     }
     
-    public function store(){
+    public function store($data){
         $table =& $this->getTable();
-        $data = JRequest::get('post');
-        jimport('joomla.utilities.date');
-        $date = new JDate(JRequest::getVar('created', '', 'post'));
-        $data['created'] = $date->toMySQL();
         $table->reset();
         if(!$table->bind($data)){
-            $this->setError($this->_db->getErrorMsg());
+            $this->setError($table->getError());
             return false;
         }
         if(!$table->check()){
-            $this->setError($this->_db->getErrorMsg());
+            $this->setError($table->getError());
             return false;
         }
         if(!$table->store()){
-            $this->setError($this->_db->getErrorMsg());
+            $this->setError($table->getError());
             return false;
         }
         return true;
@@ -84,8 +80,8 @@ class MigratorModel extends JModel{
         $cids = array_map('intval', $cids);
         $db =& JFactory::getDbo();
         $query = $db->getQuery(true);
-        $query->delete($this->_tableName);
-        $query->where('id IN '.implode(',', $cids));
+        $query->delete($db->quoteName($this->_tableName));
+        $query->where('id IN ('.implode(',', $cids).')');
         $db->setQuery($query);
         if( !$db->query() ){
             $errorMsg = $this->getDBO()->getErrorMsg();
@@ -97,9 +93,9 @@ class MigratorModel extends JModel{
         $cids = array_map('intval', $cids);
         $db =& JFactory::getDbo();
         $query = $db->getQuery(true);
-        $query->update($this->_tableName);
+        $query->update($db->quoteName($this->_tableName));
         $query->set('published = '.(int)$state);
-        $query->where('id IN '.implode(',', $cids));
+        $query->where('id IN ('.implode(',', $cids).')');
         $db->setQuery($query);
         if( !$db->query() ){
             $errorMsg = $this->getDBO()->getErrorMsg();
