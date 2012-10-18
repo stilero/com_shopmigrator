@@ -52,16 +52,21 @@ JLoader::register('MigrateStatus', SHOPMIGRATOR_CLASSES.DS.'opencart'.DS.'migrat
 class ShopMigratorControllerOpencart extends JController{
     
     public static $viewName = 'opencart';
+    private $_migrateType;
+    private $_migrateTask;
     private $_mainView;
     
     public function __construct($config = array()) {
         parent::__construct($config);
         $this->_mainView =& $this->getView( self::$viewName, 'raw' );
-        $migrateType = JRequest::getWord('migrateType');
-        $foundRequestedClass = JFile::exists(SHOPMIGRATOR_CLASSES.DS.'opencart'.DS.'migrate.'.$migrateType.'.php');
-        $foundRequestedView = JFile::exists(JPATH_COMPONENT.DS.'views'.DS.'opencart'.DS.'tmpl'.DS.$migrateType.'.php');
+        $migrateCmd = JRequest::getVar('migrateCmd');
+        $migrateCmds = explode('.', $migrateCmd);
+        $this->_migrateType = $migrateCmds[0];
+        $this->_migrateTask = $migrateCmds[1];
+        $foundRequestedClass = JFile::exists(SHOPMIGRATOR_CLASSES.DS.'opencart'.DS.'migrate.'.$this->_migrateType.'.php');
+        $foundRequestedView = JFile::exists(JPATH_COMPONENT.DS.'views'.DS.'opencart'.DS.'tmpl'.DS.$this->_migrateType.'.php');
         if($foundRequestedClass && $foundRequestedView){
-            $this->_mainView->setLayout($migrateType);
+            $this->_mainView->setLayout($this->_migrateType);
         }
         $this->registerClasses();
         $this->configure();
@@ -93,8 +98,7 @@ class ShopMigratorControllerOpencart extends JController{
         $this->_mainView->assignRef('srcDB', $srcDB);
         $this->_mainView->assignRef('destDB', $destDB);
         $this->_mainView->assignRef('storeUrl', $storeUrl);
-        $migrateTask = JRequest::getWord('migrateTask');
-        $this->_mainView->assignRef('migrateTask', $migrateTask);
+        $this->_mainView->assignRef('migrateTask', $this->_migrateTask);
     }
 
 

@@ -86,7 +86,7 @@ class MigrateManufacturer extends Migrate{
         return (bool)$isSuccessful;
     }
     
-    public function hasConflict(){
+    public function hasNoConflict(){
         $db =& $this->_sourceDB;
         $query = $db->getQuery(true);
         $query->select('manufacturer_id');
@@ -94,17 +94,18 @@ class MigrateManufacturer extends Migrate{
         $query->where('store_id = '.(int)$this->_storeid);
         $db->setQuery($query);
         $srcIds = $db->loadResultArray();
-        $db =& $this->_destDB;
-        $query = $db->getQuery(true);
-        $query->select('virtuemart_manufacturer_id');
-        $query->from($db->nameQuote(self::$_vmManuTable));
-        $query->where('virtuemart_manufacturer_id IN ('.implode(',', $srcIds).')');
-        $db->setQuery($query);
-        $result = $db->loadResultArray();
+        $db2 =& $this->_destDB;
+        $query2 = $db2->getQuery(true);
+        $query2->select('virtuemart_manufacturer_id');
+        $query2->from($db2->nameQuote(self::$_vmManuTable));
+        $query2->where('virtuemart_manufacturer_id IN ('.implode(',', $srcIds).')');
+        $db2->setQuery($query2);
+        $result = $db2->loadResultArray();
         if($result){
-            return $result;
+            $this->setError(MigrateError::DB_ERROR, 'Conflict detected. Manufacturer already exists with ID: '.implode(', ', $result));
+            return false;
         }
-        return false;
+        return true;
     }
     
     protected function setManufacturer($id, $name){
@@ -129,6 +130,7 @@ class MigrateManufacturer extends Migrate{
         $result = $db->query();
         if(!$result){
            $isSuccessful *= false;
+           $this->setError(MigrateError::DB_ERROR, 'Failed saving manufacturer '.$id.' to DB');
         }
         return (bool)$isSuccessful;
     }
@@ -161,7 +163,7 @@ class MigrateManufacturer extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed Setting image for Manufacturer '.$id);
+            $this->setError(MigrateError::DB_ERROR, 'Failed saving image for manufacturer '.$id);
             $isSuccessful = false;
         }
         $lastRowId = $db->insertid();
@@ -172,7 +174,7 @@ class MigrateManufacturer extends Migrate{
         $db->setQuery($query2);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting image for Manufacturer in media '.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed inserting image for manufacturer '.$id.' to DB');
             $isSuccessful *= false;
         }
         return (bool)$isSuccessful;
@@ -189,7 +191,7 @@ class MigrateManufacturer extends Migrate{
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->manufacturer_id, $bigImage, $thumbImage);
                  }else{
-                     $this->error[] = array(MigrateError::FILE_MOVE_PROBLEM => $bigImage);
+                     $this->setError(MigrateError::FILE_MOVE_PROBLEM, 'Failed moving image '.$image->imageurl);
                      $isSuccessful *= false;
                  }
             }

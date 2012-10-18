@@ -30,25 +30,8 @@ $bootstrap_uri = $assets_uri.'/bootstrap';
             var tasks = [<?php echo '\''.implode('\', \'', $this->tasks).'\'' ;?>];
             var totalTasks = <?php echo count($this->tasks); ?> * 2;
             var remainingTasks = <?php echo count($this->tasks); ?> * 2;
-            var currentTask = 0;
-            var isErrorFound = false;
             jQuery.noConflict();
             jQuery(function($){
-                
-                var doMigration = function(){
-                    //alert('cur:' + currentTask + ' total:'+tasks.length);
-                    if((currentTask < tasks.length) && isErrorFound === false){
-                        setProgressBar();
-                        migrate(tasks[currentTask++]);
-                    }
-                } 
-                
-                var setDone = function(){
-                    $('div[class^=progress]').attr('class','progress progress-success progress-striped');
-                    $('<div class="alert alert-success">Shop Successfully Migrated!</div>').insertAfter('div[class^=progress]');
-                    //$('<div class="row"><div class="span9"><div class="well"><span class="label label-'+labelClass+'">'+labelText+'</span> '+migrCmd+' '+labelText+': '+errorText+'</div></div></div>').appendTo('.container');
-
-                }
                 
                 var setProgressBar= function(){
                     remainingTasks -= 1;
@@ -61,8 +44,6 @@ $bootstrap_uri = $assets_uri.'/bootstrap';
                     var labelText = 'Success';
                     var errorText = '';
                     if(data.code != 0){
-                        isErrorFound = true;
-                        $('div[class^=progress]').attr('class','progress progress-danger progress-striped');
                         labelClass = 'important';
                         labelText = 'error';
                         errorText = data.message;
@@ -82,26 +63,45 @@ $bootstrap_uri = $assets_uri.'/bootstrap';
                        format: 'raw',
                        migrateCmd: migrCmd                       
                    };
-                   $.getJSON('index.php?<?php print JUtility::getToken() ?>=1', requestData, function(data){
+                   $.getJSON('index.php', requestData, function(data){
                        handleResponse(data, migrCmd);
                    }).error(function() { 
                        var errorData = new Object();
                        errorData.code = '1';
                        errorData.message = 'Server error';
                        handleResponse(errorData, migrCmd);
-                   }).complete(function(){
-                         if((currentTask < tasks.length) && isErrorFound === false){
-                            doMigration();
-                        }else if(isErrorFound === false){
-                            setDone();
-                        }
                    });
+
+//                    var url = 'index.php?option=<?php echo JRequest::getVar('option'); ?>&view=opencart&format=raw&migrateCmd='+migrCmd;
+//                    $.getJSON({
+//                        type: "GET",
+//                        url: url,
+//                        data: requestData,
+//                        async: true,
+//                        contentType: "application/json; charset=utf-8",
+//                        dataType: "jsonp",
+//                        success: function(data) {
+//                                handleResponse(data, migrCmd);
+//                        },
+//                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+//                                alert('error');
+//                        },
+//                        beforeSend: function (XMLHttpRequest) {
+//                                alert('Before Send');
+//                                $('#loading').show();
+//                        },
+//                        complete: function (XMLHttpRequest, textStatus) {
+//                                alert('Complete');
+//                                $('#loading').hide();
+//                        }
+//
+//                    });
                };  
-               doMigration();
-//               $.each(tasks, function(index, value){
-//                   setProgressBar();
-//                   migrate(value);
-//               });
+               
+               $.each(tasks, function(index, value){
+                   setProgressBar();
+                   migrate(value);
+               });
             });
         </script>
     </head>

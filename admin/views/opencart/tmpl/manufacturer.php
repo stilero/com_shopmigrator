@@ -32,33 +32,29 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
+JRequest::checkToken('get') or die('Invalid Token');
 $MigrateManufacturer = new MigrateManufacturer($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-//$MigrateManufacturer->clearData();
+$MigrateManufacturer->clearData();
 $error = 'error';
-$result = $MigrateManufacturer->hasConflict();
-if($result != false){
-    $error = 'conflict in id:'.  implode(', ', $result);
-    $wasSuccessful = false;
-}else{
-    switch ($this->migrateTask) {
-        case 'migrateManufacturers':
-            $wasSuccessful = $MigrateManufacturer->migrateManufacturers();
-            break;
-        case 'migrateImages':
-            $wasSuccessful = $MigrateManufacturer->migrateImages();
-            break;
-        default:
-            break;
-    }
+switch ($this->migrateTask) {
+    case 'hasNoConflict':
+        $wasSuccessful = $MigrateManufacturer->hasNoConflict();
+        break;
+    case 'migrateManufacturers':
+        $wasSuccessful = $MigrateManufacturer->migrateManufacturers();
+        break;
+    case 'migrateImages':
+        $wasSuccessful = $MigrateManufacturer->migrateImages();
+        break;
+    default:
+        break;
 }
-$results = array();
-if($wasSuccessful){
-    $results[] = array('code' => 0, 'message' => 'ok');
-}else{
-    //To-do: Get acual error
-    $results[] = array('code' => 1, 'message' => $error);
+$results = array('code' => 0, 'message' => 'ok');
+if(!$wasSuccessful){
+    $errorMessage = $MigrateCategories->getError();
+    $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);
 ?>

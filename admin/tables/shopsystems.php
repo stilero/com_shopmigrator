@@ -37,6 +37,7 @@ class TableShopsystems extends JTable{
     var $id = 0;
     var $title = '';
     var $version = '';
+    var $class = '';
     
     function __construct( &$db ){
         parent::__construct('#__shopmigrator_shopsystems','id',$db);

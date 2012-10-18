@@ -129,7 +129,7 @@ class MigrateProducts extends Migrate{
         
     }
     
-    public function hasConflict(){
+    public function hasNoConflict(){
         $db =& $this->_sourceDB;
         $query = $db->getQuery(true);
         $query->select('product_id');
@@ -137,17 +137,18 @@ class MigrateProducts extends Migrate{
         $query->where('store_id = '.(int)$this->_storeid);
         $db->setQuery($query);
         $srcIds = $db->loadResultArray();
-        $db =& $this->_destDB;
-        $query = $db->getQuery(true);
-        $query->select('virtuemart_product_id');
-        $query->from($db->nameQuote(self::$_vmProductTable));
-        $query->where('virtuemart_product_id IN ('.implode(',', $srcIds).')');
-        $db->setQuery($query);
-        $result = $db->loadResultArray();
+        $db2 =& $this->_destDB;
+        $query2 = $db2->getQuery(true);
+        $query2->select('virtuemart_product_id');
+        $query2->from($db2->nameQuote(self::$_vmProductTable));
+        $query2->where('virtuemart_product_id IN ('.implode(',', $srcIds).')');
+        $db2->setQuery($query2);
+        $result = $db2->loadResultArray();
         if($result){
-            return $result;
+            $this->setError(MigrateError::DB_ERROR, 'Conflict detected. Products already exists with ID: '.implode(', ', $result));
+            return false;
         }
-        return false;
+        return true;
     }
     
     protected function setProduct($product){
@@ -173,6 +174,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed inserting product to DB. ID:'.$product->product_id);
             return false;
         }
         return true;
@@ -192,6 +194,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting description for product id:'.$product->product_id);
             return false;
         }
         return true;
@@ -207,6 +210,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting price for product id:'.$product->product_id);
             return false;
         }
         return true;
@@ -222,6 +226,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting manufacturer for product id:'.$product->product_id);
             return false;
         }
         return true;
@@ -245,7 +250,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed Setting image for Product '.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed Setting image for Product '.$prodId);
             $isSuccessful = false;
         }
         $lastRowId = $db->insertid();
@@ -256,7 +261,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query2);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting image for Product in media '.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed inserting to DB image for Product in media '.$prodId);
             $isSuccessful *= false;
         }
         return (bool)$isSuccessful;
@@ -273,7 +278,7 @@ class MigrateProducts extends Migrate{
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->product_id, $bigImage, $thumbImage);
                  }else{
-                     $error[] = array(MigrateError::FILE_MOVE_PROBLEM => $bigImage);
+                     $this->setError(MigrateError::FILE_MOVE_PROBLEM ,$bigImage);
                      $isSuccessful *= false;
                  }
             }
@@ -314,6 +319,7 @@ class MigrateProducts extends Migrate{
         $result = $db->query();
         if(!$result){
             $isSuccessful *= false;
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting related products to product id:'.$relative->product_id);
         }
         return (bool)$isSuccessful;
     }
@@ -342,6 +348,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting product category for product id:'.$prodCat->product_id);
             return false;
         }
         return true;

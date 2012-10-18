@@ -32,30 +32,28 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
+JRequest::checkToken('get') or die('Invalid Token');
 $MigrateUsers = new MigrateUsers($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-//$MigrateProducts->clearData();
+$MigrateProducts->clearData();
 $error = 'error';
 $result = $MigrateUsers->hasConflict();
-if($result != false){
-    $error = 'conflict in id:'.  implode(', ', $result);
-    $wasSuccessful = false;
-}else{
+
     switch ($this->migrateTask) {
+        case 'hasNoConflict':
+            $wasSuccessful = $MigrateUsers->hasNoConflict();
+            break;
         case 'migrateUsers':
             $wasSuccessful = $MigrateUsers->migrateUsers();
             break;
         default:
             break;
     }
-}
-$results = array();
-if($wasSuccessful){
-    $results[] = array('code' => 0, 'message' => 'ok');
-}else{
-    //To-do: Get acual error
-    $results[] = array('code' => 1, 'message' => $error);
+$results = array('code' => 0, 'message' => 'ok');
+if(!$wasSuccessful){
+    $errorMessage = $MigrateCategories->getError();
+    $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);
 ?>

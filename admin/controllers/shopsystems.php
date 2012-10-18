@@ -57,7 +57,6 @@ class ShopMigratorControllerShopsystems extends JController{
         }
         $shopsystemsId = (int)$cids[0];
         $view =& $this->getView( self::$viewName, 'html' );
-        $layout =& $this->getLayout( 'form', 'html' );
         $model =& $this->getModel( self::$modelName );
         $view->setModel( $model, true );
         $view->setLayout('edit');
@@ -66,7 +65,6 @@ class ShopMigratorControllerShopsystems extends JController{
     
     function add(){
         $view =& $this->getView( self::$viewName, 'html' );
-        $layout =& $this->getLayout( 'form', 'html' );
         $model =& $this->getModel( self::$modelName );
         $view->setModel( $model, true );
         $view->setLayout('edit');
@@ -74,14 +72,28 @@ class ShopMigratorControllerShopsystems extends JController{
     }
     
     function save(){
-        $this->apply();
+        $wasSuccessful = $this->apply();
+        $redirectMessage = 'Saved';
+        $redirectMessageType = '';
+        if(!$wasSuccessful){
+            $redirectMessage = 'Failed Saving';
+            $redirectMessageType = 'error';
+        }
         $redirectTo = 'index.php?option='.JRequest::getVar('option').'&task=display&view='.JRequest::getVar('view');
-        $this->setRedirect( $redirectTo, 'Saved' );
+        $this->setRedirect( $redirectTo, $redirectMessage, $redirectMessageType );
     }
     
     function apply(){
         $model =& $this->getModel( self::$modelName );
-        $model->store();
+        $data = JRequest::get('post');
+        $wasSuccessful = $model->store($data);
+        if(!$wasSuccessful){
+            $app =& JFactory::getApplication();
+            $error = $model->getError();
+            $app->enqueueMessage($error, 'error');
+            return false;
+        }
+        return true;
     }
     
     function cancel(){

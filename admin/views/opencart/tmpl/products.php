@@ -32,39 +32,32 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
+JRequest::checkToken('get') or die('Invalid Token');
 $MigrateProducts = new MigrateProducts($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-//$MigrateProducts->clearData();
+$MigrateProducts->clearData();
 $error = 'error';
-$result = $MigrateProducts->hasConflict();
-if($result != false){
-    $error = 'conflict in id:'.  implode(', ', $result);
-    $wasSuccessful = false;
-}else{
-    switch ($this->migrateTask) {
-        case 'migrateProducts':
-            $wasSuccessful = $MigrateProducts->migrateProducts();
-            break;
-        case 'migrateImages':
-            $wasSuccessful = $MigrateProducts->migrateImages();
-            break;
-        case 'migrateProdCategories':
-            $wasSuccessful = $MigrateProducts->migrateProdCategories();
-            break;
-        case 'migrateRelated':
-            $wasSuccessful = $MigrateProducts->migrateRelated();
-            break;
-        default:
-            break;
-    }
+switch ($this->migrateTask) {
+    case 'migrateProducts':
+        $wasSuccessful = $MigrateProducts->migrateProducts();
+        break;
+    case 'migrateImages':
+        $wasSuccessful = $MigrateProducts->migrateImages();
+        break;
+    case 'migrateProdCategories':
+        $wasSuccessful = $MigrateProducts->migrateProdCategories();
+        break;
+    case 'migrateRelated':
+        $wasSuccessful = $MigrateProducts->migrateRelated();
+        break;
+    default:
+        break;
 }
-$results = array();
-if($wasSuccessful){
-    $results[] = array('code' => 0, 'message' => 'ok');
-}else{
-    //To-do: Get acual error
-    $results[] = array('code' => 1, 'message' => $error);
+$results = array('code' => 0, 'message' => 'ok');
+if(!$wasSuccessful){
+    $errorMessage = $MigrateCategories->getError();
+    $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);
 ?>

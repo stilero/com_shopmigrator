@@ -32,39 +32,23 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
+JRequest::checkToken('get') or die('Invalid Token');
 $MigrateReviews = new MigrateReviews($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-//$MigrateReviews->clearData();
+$MigrateReviews->clearData();
 $error = 'error';
-//$result = $MigrateReviews->hasConflict();
-//if($result != false){
-//    $error = 'conflict in id:'.  implode(', ', $result);
-//    $wasSuccessful = false;
-//}else{
-    switch ($this->migrateTask) {
-        case 'migrateProducts':
-            $wasSuccessful = $MigrateReviews->migrateProducts();
-            break;
-        case 'migrateImages':
-            $wasSuccessful = $MigrateReviews->migrateImages();
-            break;
-        case 'migrateProdCategories':
-            $wasSuccessful = $MigrateReviews->migrateProdCategories();
-            break;
-        case 'migrateRelated':
-            $wasSuccessful = $MigrateReviews->migrateRelated();
-            break;
-        default:
-            break;
-    }
-//}
-$results = array();
-if($wasSuccessful){
-    $results[] = array('code' => 0, 'message' => 'ok');
-}else{
-    //To-do: Get acual error
-    $results[] = array('code' => 1, 'message' => $error);
+switch ($this->migrateTask) {
+    case 'migrateReviews':
+        $wasSuccessful = $MigrateReviews->migrateReviews();
+        break;
+    default:
+        break;
+}
+$results = array('code' => 0, 'message' => 'ok');
+if(!$wasSuccessful){
+    $errorMessage = $MigrateCategories->getError();
+    $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);
 ?>

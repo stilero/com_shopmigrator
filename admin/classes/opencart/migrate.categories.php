@@ -97,7 +97,7 @@ class MigrateCategories extends Migrate{
         return (bool)$isSuccessful;
     }
     
-    public function hasConflict(){
+    public function hasNoConflict(){
         $db =& $this->_sourceDB;
         $query = $db->getQuery(true);
         $query->select('category_id');
@@ -105,17 +105,18 @@ class MigrateCategories extends Migrate{
         $query->where('store_id = '.(int)$this->_storeid);
         $db->setQuery($query);
         $srcIds = $db->loadResultArray();
-        $db =& $this->_destDB;
-        $query = $db->getQuery(true);
-        $query->select('virtuemart_category_id');
-        $query->from($db->nameQuote(self::$_vmCatTable));
-        $query->where('virtuemart_category_id IN ('.implode(',', $srcIds).')');
-        $db->setQuery($query);
-        $result = $db->loadResultArray();
+        $db2 =& $this->_destDB;
+        $query2 = $db2->getQuery(true);
+        $query2->select('virtuemart_category_id');
+        $query2->from($db2->nameQuote(self::$_vmCatTable));
+        $query2->where('virtuemart_category_id IN ('.implode(',', $srcIds).')');
+        $db2->setQuery($query2);
+        $result = $db2->loadResultArray();
         if($result){
-            return $result;
+            $this->setError(MigrateError::DB_ERROR, 'Conflict detected. Categories already exists with ID: '.implode(', ', $result));
+            return false;
         }
-        return false;
+        return true;
     }
     
     protected function setDescription($desc){
@@ -133,7 +134,7 @@ class MigrateCategories extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting category description'.$desc->category_id);
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting category description'.$desc->category_id);
             $isSuccessful = false;
         }
         return $isSuccessful;
@@ -161,7 +162,7 @@ class MigrateCategories extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting category '.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting category '.$catId);
             return false;
         }
         return true;
@@ -185,7 +186,7 @@ class MigrateCategories extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting Category Categories'.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting Category Categories'.$catId);
             return false;
         }
         return true;
@@ -220,7 +221,7 @@ class MigrateCategories extends Migrate{
         $result = $db->query();
         if(!$result){
             $isSuccessful = false;
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed Setting image for Cateogry '.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed Setting image for Cateogry '.$catId);
         }
         $lastRowId = $db->insertid();
         $query2 = $db->getQuery(true);
@@ -230,10 +231,10 @@ class MigrateCategories extends Migrate{
         $db->setQuery($query2);
         $result = $db->query();
         if(!$result){
-            $this->_error[] = array(MigrateError::DB_ERROR, 'Failed setting image for Category in media '.$catId);
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting image for Category in media '.$catId);
             $isSuccessful *= false;
         }
-        return $isSuccessful;
+        return (bool)$isSuccessful;
     }
     
     public function migrateImages(){
@@ -243,11 +244,11 @@ class MigrateCategories extends Migrate{
             if($image->image != ''){
                 $bigImage = $this->migrateFile($image->imageurl, $this->_vmImagePath);
                 $thumbImage = $this->_vmThumbPath.JFile::getName($bigImage);
-                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_BASE.DS.$thumbImage);
+                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_ROOT.DS.$thumbImage);
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->category_id, $bigImage, $thumbImage);
                  }else{
-                     $error[] = array(MigrateError::FILE_MOVE_PROBLEM => $bigImage);
+                     $$this->_error = array(MigrateError::FILE_MOVE_PROBLEM, $bigImage);
                      $isSuccessful *= false;
                  }
             }

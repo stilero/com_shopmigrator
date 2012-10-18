@@ -78,24 +78,25 @@ class MigrateUsers extends Migrate{
         return (bool)$isSuccessful;
     }
     
-    public function hasConflict(){
+    public function hasNoConflict(){
         $db =& $this->_sourceDB;
         $query = $db->getQuery(true);
         $query->select('customer_id');
         $query->from($db->nameQuote(self::$_customerTable));
         $db->setQuery($query);
         $srcIds = $db->loadResultArray();
-        $db =& $this->_destDB;
-        $query = $db->getQuery(true);
-        $query->select('id');
-        $query->from($db->nameQuote(self::$_vmUsersTable));
-        $query->where('id IN ('.implode(',', $srcIds).')');
-        $db->setQuery($query);
-        $result = $db->loadResultArray();
+        $db2 =& $this->_destDB;
+        $query2 = $db2->getQuery(true);
+        $query2->select('id');
+        $query2->from($db2->nameQuote(self::$_vmUsersTable));
+        $query2->where('id IN ('.implode(',', $srcIds).')');
+        $db2->setQuery($query2);
+        $result = $db2->loadResultArray();
         if($result){
-            return $result;
+            $this->setError(MigrateError::DB_ERROR, 'Conflict detected. Users already exists with ID: '.implode(', ', $result));
+            return false;
         }
-        return false;
+        return true;
     }
     
     protected function setUser($user){
@@ -117,6 +118,7 @@ class MigrateUsers extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed saving user to DB with id:'.$user->customer_id);
             return false;
         }
         return true;
@@ -159,6 +161,7 @@ class MigrateUsers extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting user info for user with id id:'.$user->customer_id);
             return false;
         }
         return true;

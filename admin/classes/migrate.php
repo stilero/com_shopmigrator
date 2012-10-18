@@ -23,7 +23,7 @@ class Migrate{
     protected $_destDB;
     protected $_sourceData;
     protected $_destinationData;
-    protected $_error = array();
+    protected $_error;
     
     public function __construct($MigrateSrcDB, $MigrateDestDB, $storeUrl, $storeid=0) {
         $this->_sourceDB =& $MigrateSrcDB;
@@ -33,13 +33,14 @@ class Migrate{
     }
     
     public function migrateFile($srcFile, $destPath='images/stories/virtuemart/'){
-        $destFile = JPATH_BASE.DS.$destPath.JFile::getName($srcFile);
-        $tmpFile = JPATH_BASE.DS.'tmp'.DS.JFile::getName($srcFile);
+        
+        $destFile = JPATH_ROOT.DS.$destPath.JFile::getName($srcFile);
+        $tmpFile = JPATH_ROOT.DS.'tmp'.DS.JFile::getName($srcFile);
         $content = file_get_contents($srcFile);
         file_put_contents($tmpFile, $content);
         JFile::move($tmpFile, $destFile);
         if( ! JFile::exists($destFile)){
-            print "file not found";
+            $this->setError(MigrateError::FILE_MOVE_PROBLEM, 'Could not move image '.$srcFile);
             return false;
         }
         return $destFile;
@@ -49,6 +50,17 @@ class Migrate{
         $image = new JImage($bigImagePath);
         $resized = $image->resize($width, $height, true, JImage::SCALE_INSIDE);
         $resized->toFile($savePath);
+    }
+    
+    public function setError($code, $message){
+        $this->_error = array(
+            'code' => (int)$code,
+            'message' => $message
+        );
+    }
+    
+    public function getError(){
+        return $this->_error;
     }
     
     public function __get($name) {

@@ -27,5 +27,6 @@ CREATE TABLE IF NOT EXISTS `#__shopmigrator_shopsystems` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) DEFAULT NULL,
   `version` varchar(255) DEFAULT NULL,
+  `class` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;

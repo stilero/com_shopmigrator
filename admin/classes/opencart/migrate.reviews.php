@@ -72,6 +72,7 @@ class MigrateReviews extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed inserting Rating for product:'.$review->product_id);
             return false;
         }
         return true;
@@ -93,6 +94,7 @@ class MigrateReviews extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
+            $this->setError(MigrateError::DB_ERROR, 'Failed setting Rating Review for product:'.$review->product_id);
             return false;
         }
         return true;

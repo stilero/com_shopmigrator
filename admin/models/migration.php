@@ -24,12 +24,12 @@ class ShopMigratorModelMigration extends JModelItem
  
 	public function getTasks($migrateType){
             $tasks = array();
-            $tasks[] =  array('categories' => 'migrateCategories');
-            $tasks[] =  array('categories' => 'migrateCategoryCategories');
-            $tasks[] =  array('categories' => 'migrateImages');
-            $tasks[] =  array('categories' => 'migrateDescriptions');
-            $tasks[] =  array('manufacturer' => 'migrateManufacturers');
-            $tasks[] =  array('manufacturer' => 'migrateImages');
+            $tasks[] =  'categories.hasNoConflict';
+            $tasks[] =  'categories.migrateCategories';
+            $tasks[] =  'categories.migrateCategoryCategories';
+            $tasks[] =  'categories.migrateImages';
+            $tasks[] =  'categories.migrateDescriptions';
+            $tasks[] =  'manufacturer.hasNoConflict';
             return $tasks;
 	}
 }
