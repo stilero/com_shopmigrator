@@ -14,11 +14,9 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
 // import Joomla modelitem library
-//jimport('joomla.application.component.model');
-jimport('joomla.application.component.modeladmin');
+jimport('joomla.application.component.model');
 
-
-class MigratorModel extends JModelAdmin{
+class MigratorModel extends JModel{
     
     protected $_tableName;
     protected $_tableClassName;
@@ -27,61 +25,6 @@ class MigratorModel extends JModelAdmin{
         parent::__construct();
         $this->_tableName = $tableName;
         $this->_tableClassName = $tableClassName;
-    }
-    
-    public function getForm($name='com_weblinks.weblink', $source='weblink', $data = array(), $loadData = true){
-        // Initialise variables.
-        $app	= JFactory::getApplication();
-
-        // Get the form.
-        $form = $this->loadForm($name, $source, array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
-            return false;
-        }
-
-//        // Determine correct permissions to check.
-//        if ($this->getState($source.'.id')) {
-//                // Existing record. Can only edit in selected categories.
-//                $form->setFieldAttribute('catid', 'action', 'core.edit');
-//        } else {
-//                // New record. Can only create in selected categories.
-//                $form->setFieldAttribute('catid', 'action', 'core.create');
-//        }
-//
-//        // Modify the form based on access controls.
-//        if (!$this->canEditState((object) $data)) {
-//                // Disable fields for display.
-//                $form->setFieldAttribute('ordering', 'disabled', 'true');
-//                $form->setFieldAttribute('state', 'disabled', 'true');
-//                $form->setFieldAttribute('publish_up', 'disabled', 'true');
-//                $form->setFieldAttribute('publish_down', 'disabled', 'true');
-//
-//                // Disable fields while saving.
-//                // The controller has already verified this is a record you can edit.
-//                $form->setFieldAttribute('ordering', 'filter', 'unset');
-//                $form->setFieldAttribute('state', 'filter', 'unset');
-//                $form->setFieldAttribute('publish_up', 'filter', 'unset');
-//                $form->setFieldAttribute('publish_down', 'filter', 'unset');
-//        }
-
-        return $form;
-    }
-    
-    protected function loadFormData($name='com_weblinks.weblink', $source='weblink'){
-        // Check the session for previously entered form data.
-        $data = JFactory::getApplication()->getUserState($name.'.edit.'.$source.'.data', array());
-
-        if (empty($data)) {
-            $data = $this->getItem();
-
-            // Prime some default values.
-            if ($this->getState($source.'.id') == 0) {
-                $app = JFactory::getApplication();
-                $data->set('catid', JRequest::getInt('catid', $app->getUserState(com_weblinks.weblink.'.filter.category_id')));
-            }
-        }
-
-        return $data;
     }
     
     public function getItems(){

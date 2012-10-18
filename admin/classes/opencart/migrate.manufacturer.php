@@ -59,7 +59,6 @@ class MigrateManufacturer extends Migrate{
         $query->from(self::$_manuToStoreTable.' mts');
         $query->innerJoin(self::$_manuTable.' m ON m.manufacturer_id = mts.manufacturer_id');
         $query->where('mts.store_id = '.(int)$this->_storeid);
-        print $query->dump();
         $db->setQuery($query);
         $this->_sourceData = $db->loadObjectList();
         return $this->_sourceData;
@@ -187,7 +186,7 @@ class MigrateManufacturer extends Migrate{
             if($image->image != ''){
                 $bigImage = $this->migrateFile($image->imageurl, $this->_vmImagePath);
                 $thumbImage = $this->_vmThumbPath.JFile::getName($bigImage);
-                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_BASE.DS.$thumbImage);
+                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_ROOT.DS.$thumbImage);
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->manufacturer_id, $bigImage, $thumbImage);
                  }else{

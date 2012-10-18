@@ -24,8 +24,8 @@ class ShopMigratorControllerMigration extends JController{
         //Set Default View and Model
         $view =& $this->getView( self::$viewName, 'raw' );
         $model =& $this->getModel(  self::$modelName );
-        $migrateType = JRequest::getWord('migrateType');
-        $tasks = $model->getTasks($migrateType);
+        $systemId = JRequest::getInt('systemid');
+        $tasks = $model->getTasks(1);
         $view->assignRef('tasks', $tasks);
         $view->setModel( $model, true );
         $view->display();

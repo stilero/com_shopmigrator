@@ -22,14 +22,24 @@ class ShopMigratorModelMigration extends JModelItem
 {
 	protected $_migrateType;
  
-	public function getTasks($migrateType){
-            $tasks = array();
-            $tasks[] =  'categories.hasNoConflict';
-            $tasks[] =  'categories.migrateCategories';
-            $tasks[] =  'categories.migrateCategoryCategories';
-            $tasks[] =  'categories.migrateImages';
-            $tasks[] =  'categories.migrateDescriptions';
-            $tasks[] =  'manufacturer.hasNoConflict';
+	public function getTasks($systemId){
+            $db =& JFactory::getDbo();
+            $query = $db->getQuery(true);
+            $query->select('t.task');
+            $query->from($db->nameQuote('#__shopmigrator_shopsystems').' s');
+            $query->innerJoin($db->nameQuote('#__shopmigrator_shopsystems_tasks').' t ON t.shopsystems_id = s.id');
+            $query->where('s.id = '.(int)$systemId);
+            $query->order('t.ordering');
+            $db->setQuery($query);
+            $tasks = $db->loadResultArray();
             return $tasks;
+//            $tasks = array();
+//            $tasks[] =  'categories.hasNoConflict';
+//            $tasks[] =  'categories.migrateCategories';
+//            $tasks[] =  'categories.migrateCategoryCategories';
+//            $tasks[] =  'categories.migrateImages';
+//            $tasks[] =  'categories.migrateDescriptions';
+//            $tasks[] =  'manufacturer.hasNoConflict';
+            //return $tasks;
 	}
 }

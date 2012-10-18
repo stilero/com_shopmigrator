@@ -36,7 +36,7 @@ JRequest::checkToken('get') or die('Invalid Token');
 $MigrateManufacturer = new MigrateManufacturer($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-$MigrateManufacturer->clearData();
+//$MigrateManufacturer->clearData();
 $error = 'error';
 switch ($this->migrateTask) {
     case 'hasNoConflict':
@@ -53,7 +53,7 @@ switch ($this->migrateTask) {
 }
 $results = array('code' => 0, 'message' => 'ok');
 if(!$wasSuccessful){
-    $errorMessage = $MigrateCategories->getError();
+    $errorMessage = $MigrateManufacturer->getError();
     $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);

@@ -30,3 +30,31 @@ CREATE TABLE IF NOT EXISTS `#__shopmigrator_shopsystems` (
   `class` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+INSERT INTO `#__shopmigrator_shopsystems` (`id`, `title`, `version`, `class`) VALUES
+(1, 'OpenCart', '1.0', 'opencart');
+
+CREATE TABLE IF NOT EXISTS `#__shopmigrator_shopsystems_tasks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `shopsystems_id` int(11) DEFAULT NULL,
+  `task` varchar(255) DEFAULT NULL,
+  `ordering` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+INSERT INTO `#__shopmigrator_shopsystems_tasks` (`id`, `shopsystems_id`, `task`, `ordering`) VALUES
+(1, 1, 'categories.hasNoConflict', 1),
+(2, 1, 'categories.migrateCategories', 2),
+(3, 1, 'categories.migrateCategoryCategories', 3),
+(4, 1, 'categories.migrateImages', 4),
+(5, 1, 'manufacturer.hasNoConflict', 5),
+(6, 1, 'manufacturer.migrateManufacturers', 6),
+(7, 1, 'manufacturer.migrateImages', 7),
+(8, 1, 'products.hasNoConflict', 8),
+(9, 1, 'products.migrateProducts', 9),
+(10, 1, 'products.migrateImages', 10),
+(11, 1, 'products.migrateProdCategories', 11),
+(12, 1, 'products.migrateRelated', 12),
+(13, 1, 'reviews.migrateReviews', 13),
+(14, 1, 'users.hasNoConflict', 14),
+(15, 1, 'users.migrateUsers', 15);

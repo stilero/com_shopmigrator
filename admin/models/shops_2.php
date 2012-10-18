@@ -4,7 +4,7 @@
  *
  * @version  1.0
  * @author Daniel Eliasson Stilero Webdesign http://www.stilero.com
- * @copyright  (C) 2012-okt-17 Stilero Webdesign, Stilero AB
+ * @copyright  (C) 2012-okt-07 Stilero Webdesign, Stilero AB
  * @category Components
  * @license	GPLv2
  * 
@@ -13,7 +13,7 @@
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
  * 
- * This file is part of default.
+ * This file is part of shops.
  * 
  * ShopMigrator is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,35 +32,16 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
-JRequest::checkToken('get') or die('Invalid Token');
-$MigrateProducts = new MigrateProducts($this->srcDB, $this->destDB, $this->storeUrl);
-$wasSuccessful = false;
-$output = '';
-//$MigrateProducts->clearData();
-$error = 'error';
-switch ($this->migrateTask) {
-    case 'hasNoConflict':
-        $wasSuccessful = $MigrateProducts->hasNoConflict();
-        break;
-    case 'migrateProducts':
-        $wasSuccessful = $MigrateProducts->migrateProducts();
-        break;
-    case 'migrateImages':
-        $wasSuccessful = $MigrateProducts->migrateImages();
-        break;
-    case 'migrateProdCategories':
-        $wasSuccessful = $MigrateProducts->migrateProdCategories();
-        break;
-    case 'migrateRelated':
-        $wasSuccessful = $MigrateProducts->migrateRelated();
-        break;
-    default:
-        break;
+ 
+// import Joomla modelitem library
+jimport('joomla.application.component.model');
+ 
+class ShopMigratorModelShops extends MigratorModel{
+    
+    static private $_table = '#__shopmigrator_shops';
+    static private $_tableClass = 'shops';
+
+    public function __construct() {
+        parent::__construct(self::$_table, self::$_tableClass);
+    }
 }
-$results = array('code' => 0, 'message' => 'ok');
-if(!$wasSuccessful){
-    $errorMessage = $MigrateProducts->getError();
-    $results = array('code' => 1, 'message' => $errorMessage['message']);
-}
-print $json = json_encode($results);
-?>

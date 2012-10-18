@@ -36,7 +36,7 @@ JRequest::checkToken('get') or die('Invalid Token');
 $MigrateReviews = new MigrateReviews($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-$MigrateReviews->clearData();
+//$MigrateReviews->clearData();
 $error = 'error';
 switch ($this->migrateTask) {
     case 'migrateReviews':
@@ -47,7 +47,7 @@ switch ($this->migrateTask) {
 }
 $results = array('code' => 0, 'message' => 'ok');
 if(!$wasSuccessful){
-    $errorMessage = $MigrateCategories->getError();
+    $errorMessage = $MigrateReviews->getError();
     $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);

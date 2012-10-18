@@ -13,7 +13,8 @@
 
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
-
+jimport( 'joomla.html.html.string' );
+JLoader::register('JHtmlString', JPATH_LIBRARIES.'/joomla/html/html/string.php');
 class MigrateReviews extends Migrate{
     
     protected static $_reviewTable = '#__review';

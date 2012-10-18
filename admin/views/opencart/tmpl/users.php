@@ -36,10 +36,8 @@ JRequest::checkToken('get') or die('Invalid Token');
 $MigrateUsers = new MigrateUsers($this->srcDB, $this->destDB, $this->storeUrl);
 $wasSuccessful = false;
 $output = '';
-$MigrateProducts->clearData();
+//$MigrateUsers->clearData();
 $error = 'error';
-$result = $MigrateUsers->hasConflict();
-
     switch ($this->migrateTask) {
         case 'hasNoConflict':
             $wasSuccessful = $MigrateUsers->hasNoConflict();
@@ -52,7 +50,7 @@ $result = $MigrateUsers->hasConflict();
     }
 $results = array('code' => 0, 'message' => 'ok');
 if(!$wasSuccessful){
-    $errorMessage = $MigrateCategories->getError();
+    $errorMessage = $MigrateUsers->getError();
     $results = array('code' => 1, 'message' => $errorMessage['message']);
 }
 print $json = json_encode($results);

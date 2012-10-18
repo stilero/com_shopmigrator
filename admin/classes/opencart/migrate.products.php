@@ -13,7 +13,8 @@
 
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
-
+jimport( 'joomla.html.html.string' );
+JLoader::register('JHtmlString', JPATH_LIBRARIES.'/joomla/html/html/string.php');
 class MigrateProducts extends Migrate{
     
     protected static $_prodTable = '#__product';
@@ -84,7 +85,6 @@ class MigrateProducts extends Migrate{
         $query->innerJoin(self::$_prodLengthClassTable.' l ON l.length_class_id = p.length_class_id');
         $query->innerJoin(self::$_prodWeightClassTable.' w ON w.weight_class_id = p.weight_class_id');
         $query->where('pts.store_id = '.(int)$this->_storeid);
-        print $query->dump();
         $db->setQuery($query);
         $this->_sourceData = $db->loadObjectList();
         return $this->_sourceData;
@@ -274,7 +274,7 @@ class MigrateProducts extends Migrate{
             if($image->image != ''){
                 $bigImage = $this->migrateFile($image->imageurl, $this->_vmImagePath);
                 $thumbImage = $this->_vmThumbPath.JFile::getName($bigImage);
-                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_BASE.DS.$thumbImage);
+                 $this->resizeImage($bigImage, $this->_thumbHeight, $this->_thumbWidth, JPATH_ROOT.DS.$thumbImage);
                 if($bigImage != FALSE){
                     $isSuccessful *= $this->setImage($image->product_id, $bigImage, $thumbImage);
                  }else{

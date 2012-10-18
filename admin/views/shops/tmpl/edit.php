@@ -31,84 +31,75 @@
  */
 
 // No direct access to this file
-defined('_JEXEC') or die('Restricted access');
-?>
-<form action="index.php" method="post" name="adminForm" id="adminForm">
-    <div class="col100">
-        <fieldset class="adminform">
-            <legend><?php echo JText::_( 'Details' ); ?></legend>
-            <table class="admintable">
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="name">
-                        <?php echo JText::_( 'Name' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <input class="inputbox" type="text"
-                        name="name" id="name" size="25"
-                        value="<?php echo $this->item->name;?>" />
-                    </td>
-                </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="url">
-                            <?php echo JText::_( 'URL' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <input class="inputbox" type="text"
-                        name="url" id="url" size="10"
-                        value="<?php echo $this->item->url;?>" />
-                    </td>
-                </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="db_id">
-                            <?php echo JText::_( 'Database' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <input class="text_area" type="text"
-                        name="db_id" id="db_id"
-                        size="32" maxlength="250"
-                        value="<?php echo $this->item->db_id;?>" />
-                    </td>
-                </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="shop_system_id">
-                            <?php echo JText::_( 'Shop system' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <input class="inputbox" type="text"
-                        name="shop_system_id" id="shop_system_id" size="50"
-                        value="<?php echo $this->item->shop_system_id;?>" />
-                    </td>
-                </tr>
-                <tr>
-                    <td width="100" align="right" class="key">
-                        <label for="status">
-                            <?php echo JText::_( 'Status' ); ?>:
-                        </label>
-                    </td>
-                    <td>
-                        <input class="inputbox" type="text" 
-                               name="status" id="status" size="10" maxlength="5" 
-                               value="<?php echo $this->item->status;?>" />
-                    </td>
-                </tr>
-               
-            </table>
-        </fieldset>
-    </div>
-    <div class="clr"></div>
-    <input type="hidden" name="option"
-    value="<?php echo JRequest::getVar( 'option' ); ?>" />
-    <input type="hidden" name="view"
-           value="<?php echo JRequest::getCmd( 'view' ); ?>" />
-    <input type="hidden" name="id"
-    value="<?php echo $this->item->id; ?>" />
-    <input type="hidden" name="task" value="" />
-</form>
+defined('_JEXEC') or die('fail');
+
+JHtml::_('behavior.keepalive');
+JHtml::_('behavior.tooltip');
+JHtml::_('behavior.formvalidation');
+
+// Create shortcut to parameters.
+//$params = $this->state->get('params');
+?> 
+
+<script type="text/javascript">
+	Joomla.submitbutton = function(task) {
+		if (task == 'weblink.cancel' || document.formvalidator.isValid(document.id('adminForm'))) {
+			<?php echo $this->form->getField('description')->save(); ?>
+			Joomla.submitform(task);
+		}
+		else {
+			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED'));?>');
+		}
+	}
+</script>
+<div class="edit<?php echo $this->pageclass_sfx; ?>">
+<?php if ($this->params->get('show_page_heading')) : ?>
+<h1>
+	<?php echo $this->escape($this->params->get('page_heading')); ?>
+</h1>
+<?php endif; ?>
+<form action="<?php echo JRoute::_('index.php?option=com_shopmigrator&view='.JRequest::getCmd( 'view' ).'&w_id='.(int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" class="form-validate">
+	<fieldset>
+		<legend><?php echo JText::_('COM_WEBLINKS_LINK'); ?></legend>
+
+			<div class="formelm">
+			<?php echo $this->form->getLabel('name'); ?>
+			<?php echo $this->form->getInput('name'); ?>
+			</div>
+
+			<div class="formelm">
+			<?php echo $this->form->getLabel('url'); ?>
+			<?php echo $this->form->getInput('url'); ?>
+			</div>
+
+			<div class="formelm">
+			<?php echo $this->form->getLabel('db_id'); ?>
+			<?php echo $this->form->getInput('db_id'); ?>
+			</div>
+			<div class="formelm">
+			<?php echo $this->form->getLabel('shop_system_id'); ?>
+			<?php echo $this->form->getInput('shop_system_id'); ?>
+			</div>
+                        <div class="formelm">
+                            <?php echo $this->form->getLabel('status'); ?>
+                            <?php echo $this->form->getInput('status'); ?>
+                        </div>
+			<div class="formelm-buttons">
+			<button type="button" onclick="Joomla.submitbutton('save')">
+				<?php echo JText::_('JSAVE') ?>
+			</button>
+			<button type="button" onclick="Joomla.submitbutton('cancel')">
+				<?php echo JText::_('JCANCEL') ?>
+			</button>
+			</div>
+			<div>
+			<?php echo $this->form->getLabel('description'); ?>
+			<?php echo $this->form->getInput('description'); ?>
+			</div>
+	</fieldset>
+
+		<input type="hidden" name="return" value="<?php echo $this->return_page;?>" />
+		<input type="hidden" name="task" value="" />
+		<?php echo JHtml::_( 'form.token' ); ?>
+	</form>
+</div>

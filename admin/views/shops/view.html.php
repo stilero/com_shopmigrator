@@ -48,6 +48,7 @@ class ShopMigratorViewShops extends JView{
         JToolBarHelper::addNewX();
         $model =& $this->getModel('shops');
         $items =& $model->getItems();
+        
         $this->assignRef('items', $items);
         parent::display($tpl);
     }
@@ -57,6 +58,7 @@ class ShopMigratorViewShops extends JView{
         JToolBarHelper::save();
         JToolBarHelper::cancel('cancel', 'Close');
         $model =& $this->getModel();
+        $this->form = $this->get('Form');
         $item = $model->getItem( $id );
         $this->assignRef('item', $item);
         parent::display();
@@ -68,6 +70,7 @@ class ShopMigratorViewShops extends JView{
         JToolBarHelper::save();
         JToolBarHelper::cancel();
         $model =& $this->getModel();
+        $this->form = $model->getForm('com_shopmigrator', 'shops');
         $item = $model->getNewItem();
         $this->assignRef('item', $item);
         parent::display();
