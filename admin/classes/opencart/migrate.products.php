@@ -308,7 +308,7 @@ class MigrateProducts extends Migrate{
         $db->setQuery($query);
         $result = $db->query();
         if(!$result){
-            $isSuccessful = false;
+            return true;
         }
         $query = $db->getQuery(true);
         $query->insert(self::$_vmProdCustomFieldsTable);

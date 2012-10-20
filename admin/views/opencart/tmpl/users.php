@@ -33,25 +33,6 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
-$MigrateUsers = new MigrateUsers($this->srcDB, $this->destDB, $this->storeUrl);
-$wasSuccessful = false;
-$output = '';
-//$MigrateUsers->clearData();
-$error = 'error';
-    switch ($this->migrateTask) {
-        case 'hasNoConflict':
-            $wasSuccessful = $MigrateUsers->hasNoConflict();
-            break;
-        case 'migrateUsers':
-            $wasSuccessful = $MigrateUsers->migrateUsers();
-            break;
-        default:
-            break;
-    }
-$results = array('code' => 0, 'message' => 'ok');
-if(!$wasSuccessful){
-    $errorMessage = $MigrateUsers->getError();
-    $results = array('code' => 1, 'message' => $errorMessage['message']);
-}
-print $json = json_encode($results);
+echo MigrateEntity::jsonResult('users', $this->srcDB, $this->destDB, $this->storeUrl, '', $this->migrateTask);
+
 ?>

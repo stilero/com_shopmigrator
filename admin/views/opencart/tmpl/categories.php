@@ -33,35 +33,5 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
-$MigrateCategories = new MigrateCategories($this->srcDB, $this->destDB, $this->storeUrl);
-$MigrateCategories->setImageFolder($this->mediaCategoryPath);
-$wasSuccessful = false;
-$output = '';
-//$MigrateCategories->clearData();
-$error = 'error';
-switch ($this->migrateTask) {
-    case 'hasNoConflict':
-        $wasSuccessful = $MigrateCategories->hasNoConflict();
-        break;
-    case 'migrateCategories':
-        $wasSuccessful = $MigrateCategories->migrateCategories();
-        break;
-    case 'migrateCategoryCategories':
-        $wasSuccessful = $MigrateCategories->migrateCategoryCategories();
-        break;
-    case 'migrateImages':
-        $wasSuccessful = $MigrateCategories->migrateImages();
-        break;
-    case 'migrateDescriptions':
-        $wasSuccessful = $MigrateCategories->migrateDescriptions();
-        break;
-    default:
-        break;
-}
-$results = array('code' => 0, 'message' => 'ok');
-if(!$wasSuccessful){
-    $errorMessage = $MigrateCategories->getError();
-    $results = array('code' => 1, 'message' => $errorMessage['message']);
-}
-print $json = json_encode($results);
+
 ?>

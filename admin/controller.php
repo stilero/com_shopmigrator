@@ -42,11 +42,8 @@ class ShopmigratorController extends JController{
     public static $viewName = 'dashboard';
     
     public function display(){
-        //Set Default View and Model
         $view =& $this->getView( self::$viewName, 'html' );
         JRequest::setVar('view', $view);
-        //$model =& $this->getModel(  self::$modelName );
-        //$view->setModel( $model, true );
         $view->display();
     }
     

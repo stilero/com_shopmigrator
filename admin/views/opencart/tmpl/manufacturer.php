@@ -33,29 +33,5 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
-$MigrateManufacturer = new MigrateManufacturer($this->srcDB, $this->destDB, $this->storeUrl);
-$MigrateManufacturer->setImageFolder($this->mediaManufacturerPath);
-$wasSuccessful = false;
-$output = '';
-//$MigrateManufacturer->clearData();
-$error = 'error';
-switch ($this->migrateTask) {
-    case 'hasNoConflict':
-        $wasSuccessful = $MigrateManufacturer->hasNoConflict();
-        break;
-    case 'migrateManufacturers':
-        $wasSuccessful = $MigrateManufacturer->migrateManufacturers();
-        break;
-    case 'migrateImages':
-        $wasSuccessful = $MigrateManufacturer->migrateImages();
-        break;
-    default:
-        break;
-}
-$results = array('code' => 0, 'message' => 'ok');
-if(!$wasSuccessful){
-    $errorMessage = $MigrateManufacturer->getError();
-    $results = array('code' => 1, 'message' => $errorMessage['message']);
-}
-print $json = json_encode($results);
+echo MigrateEntity::jsonResult('manufacturer', $this->srcDB, $this->destDB, $this->storeUrl, $this->mediaManufacturerPath, $this->migrateTask);
 ?>

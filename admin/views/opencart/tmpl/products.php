@@ -33,35 +33,6 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
-$MigrateProducts = new MigrateProducts($this->srcDB, $this->destDB, $this->storeUrl);
-$MigrateProducts->setImageFolder($this->mediaProductPath);
-$wasSuccessful = false;
-$output = '';
-//$MigrateProducts->clearData();
-$error = 'error';
-switch ($this->migrateTask) {
-    case 'hasNoConflict':
-        $wasSuccessful = $MigrateProducts->hasNoConflict();
-        break;
-    case 'migrateProducts':
-        $wasSuccessful = $MigrateProducts->migrateProducts();
-        break;
-    case 'migrateImages':
-        $wasSuccessful = $MigrateProducts->migrateImages();
-        break;
-    case 'migrateProdCategories':
-        $wasSuccessful = $MigrateProducts->migrateProdCategories();
-        break;
-    case 'migrateRelated':
-        $wasSuccessful = $MigrateProducts->migrateRelated();
-        break;
-    default:
-        break;
-}
-$results = array('code' => 0, 'message' => 'ok');
-if(!$wasSuccessful){
-    $errorMessage = $MigrateProducts->getError();
-    $results = array('code' => 1, 'message' => $errorMessage['message']);
-}
-print $json = json_encode($results);
+echo MigrateEntity::jsonResult('products', $this->srcDB, $this->destDB, $this->storeUrl, $this->mediaProductPath, $this->migrateTask);
+
 ?>

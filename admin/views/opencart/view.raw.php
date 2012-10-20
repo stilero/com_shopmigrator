@@ -35,6 +35,7 @@ defined('_JEXEC') or die('Restricted access');
  
 // import Joomla view library
 jimport('joomla.application.component.view');
+JLoader::register('MigrateEntity', dirname(__FILE__).DS.'tmpl'.DS.'entity.php');
  
 /**
  * HTML View class for the HelloWorld Component
