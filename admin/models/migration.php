@@ -33,13 +33,5 @@ class ShopMigratorModelMigration extends JModelItem
             $db->setQuery($query);
             $tasks = $db->loadResultArray();
             return $tasks;
-//            $tasks = array();
-//            $tasks[] =  'categories.hasNoConflict';
-//            $tasks[] =  'categories.migrateCategories';
-//            $tasks[] =  'categories.migrateCategoryCategories';
-//            $tasks[] =  'categories.migrateImages';
-//            $tasks[] =  'categories.migrateDescriptions';
-//            $tasks[] =  'manufacturer.hasNoConflict';
-            //return $tasks;
 	}
 }

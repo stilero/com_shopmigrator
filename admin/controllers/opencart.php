@@ -48,6 +48,7 @@ JLoader::register('MigrateFiles', SHOPMIGRATOR_CLASSES.DS.'MigrateFiles.php');
 JLoader::register('MigrateCountries', SHOPMIGRATOR_CLASSES.DS.'opencart'.DS.'migrate.php');
 JLoader::register('MigrateCurrencies', SHOPMIGRATOR_CLASSES.DS.'opencart'.DS.'migrate.php');
 JLoader::register('MigrateStatus', SHOPMIGRATOR_CLASSES.DS.'opencart'.DS.'migrate.php');
+JLoader::register('VmConfig', JPATH_ROOT.DS.'administrator'.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
 
 class ShopMigratorControllerOpencart extends JController{
     
@@ -86,18 +87,42 @@ class ShopMigratorControllerOpencart extends JController{
     }
     
     private function configure(){
-        $srcMigrateDB = new MigrateDB('localhost', 'root', 'jkebML00', 'opencart');
+        $params = & JComponentHelper::getParams('com_shopmigrator');
+        $src = array(
+            'db_host' => $params->get('db_host'),
+            'db_name' => $params->get('db_name'),
+            'db_prefix' => $params->get('db_prefix', ''),
+            'db_user' => $params->get('db_user'),
+            'db_pass' => $params->get('db_pass'),
+            'db_type' => 'mysql',
+        );
+        $app =& JFactory::getApplication();
+        $dest = array(
+            'db_host' => $app->getCfg('host'),
+            'db_name' => $app->getCfg('db'),
+            'db_prefix' => $app->getCfg('dbprefix', ''),
+            'db_user' => $app->getCfg('user'),
+            'db_pass' => $app->getCfg('password'),
+            'db_type' => $app->getCfg('dbtype'),
+        );
+        $srcMigrateDB = new MigrateDB($src['db_host'], $src['db_user'], $src['db_pass'], $src['db_name'], $src['db_type'], $src['db_prefix']);
         $srcDB = & $srcMigrateDB->getDB();
-        $MigrateDestDB = new MigrateDB('localhost', 'root', 'jkebML00', 'joomla_svn25', 'mysql', 'pnq93_');
+        $MigrateDestDB = new MigrateDB($dest['db_host'], $dest['db_user'], $dest['db_pass'], $dest['db_name'], $dest['db_type'], $dest['db_prefix']);
         $destDB = & $MigrateDestDB->getDB();
-        $storeUrl = 'http://localhost/opencart/';
-        $thumbWidth = 100;
-        $thumbHeight = 100;
+        $storeUrl = $params->get('shopurl');
+        $thumbWidth = VmConfig::get ('img_width', 100);
+        $thumbHeight = VmConfig::get ('img_height', 100);
+        $mediaCategoryPath = VmConfig::get('media_category_path');
+        $mediaProductPath = VmConfig::get('media_product_path');
+        $mediaManufacturerPath = VmConfig::get('media_manufacturer_path');
         $this->_mainView->assignRef('thumbWidth', $thumbWidth);
         $this->_mainView->assignRef('thumbHeight', $thumbHeight);
         $this->_mainView->assignRef('srcDB', $srcDB);
         $this->_mainView->assignRef('destDB', $destDB);
         $this->_mainView->assignRef('storeUrl', $storeUrl);
+        $this->_mainView->assignRef('mediaCategoryPath', $mediaCategoryPath);
+        $this->_mainView->assignRef('mediaProductPath', $mediaProductPath);
+        $this->_mainView->assignRef('mediaManufacturerPath', $mediaManufacturerPath);
         $this->_mainView->assignRef('migrateTask', $this->_migrateTask);
     }
 

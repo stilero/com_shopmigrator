@@ -34,9 +34,10 @@
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
 $MigrateCategories = new MigrateCategories($this->srcDB, $this->destDB, $this->storeUrl);
+$MigrateCategories->setImageFolder($this->mediaCategoryPath);
 $wasSuccessful = false;
 $output = '';
-$MigrateCategories->clearData();
+//$MigrateCategories->clearData();
 $error = 'error';
 switch ($this->migrateTask) {
     case 'hasNoConflict':

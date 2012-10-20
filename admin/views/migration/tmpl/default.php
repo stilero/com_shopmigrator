@@ -46,7 +46,7 @@ $bootstrap_uri = $assets_uri.'/bootstrap';
                 var setDone = function(){
                     $('div[class^=progress]').attr('class','progress progress-success progress-striped');
                     $('<div class="alert alert-success">Shop Successfully Migrated!</div>').insertAfter('div[class^=progress]');
-                    $('<div class="alert alert-success">Shop Successfully Migrated!</div>').appendTo('.container');
+                    $('<div class="alert alert-success">Shop Successfully Migrated!</div>').appendTo('.container-fluid');
                     //$('<div class="row"><div class="span9"><div class="well"><span class="label label-'+labelClass+'">'+labelText+'</span> '+migrCmd+' '+labelText+': '+errorText+'</div></div></div>').appendTo('.container');
 
                 }
@@ -68,7 +68,7 @@ $bootstrap_uri = $assets_uri.'/bootstrap';
                         labelText = 'error';
                         errorText = data.message;
                     }
-                    $('<div class="row"><div class="span9"><div class="well"><span class="label label-'+labelClass+'">'+labelText+'</span> '+migrCmd+' '+labelText+': '+errorText+'</div></div></div>').appendTo('.container');
+                    $('<div class="row"><div class="span9"><div class="well"><span class="label label-'+labelClass+'">'+labelText+'</span> '+migrCmd+' '+labelText+': '+errorText+'</div></div></div>').appendTo('.container-fluid');
                 };
                 
                 var handleResponse = function(data, migrCmd){
@@ -107,7 +107,7 @@ $bootstrap_uri = $assets_uri.'/bootstrap';
         </script>
     </head>
     <body>
-        <div class="container">
+        <div class="container-fluid">
                 <div class="page-header">
                     <h1>Migrating<small> Don't close this window.</small></h1>
                 </div>

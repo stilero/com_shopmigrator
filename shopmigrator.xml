@@ -88,6 +88,7 @@
             <files folder="admin">
                     <!-- Admin Main File Copy Section -->
                     <filename>index.html</filename>
+                    <filename>config.xml</filename>
                     <filename>admin.shopmigrator.php</filename>
                     <filename>controller.php</filename>
                     <folder>views</folder>

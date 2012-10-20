@@ -46,9 +46,10 @@ class ShopMigratorViewMigration extends JView{
         JToolBarHelper::deleteList();
         JToolBarHelper::editListX();
         JToolBarHelper::addNewX();
-        //$model =& $this->getModel('migration');
-        //$items =& $model->getItems();
-        //$this->assignRef('items', $Items);
+        $model =& $this->getModel('migration');
+        $systemId = JRequest::getInt('systemid');
+        $tasks =& $model->getTasks($systemId);
+        $this->assignRef('tasks', $tasks);
         parent::display($tpl);
     }
     

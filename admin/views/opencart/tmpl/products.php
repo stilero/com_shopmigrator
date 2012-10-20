@@ -34,6 +34,7 @@
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
 $MigrateProducts = new MigrateProducts($this->srcDB, $this->destDB, $this->storeUrl);
+$MigrateProducts->setImageFolder($this->mediaProductPath);
 $wasSuccessful = false;
 $output = '';
 //$MigrateProducts->clearData();

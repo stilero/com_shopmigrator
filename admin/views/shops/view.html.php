@@ -46,6 +46,7 @@ class ShopMigratorViewShops extends JView{
         JToolBarHelper::deleteList();
         JToolBarHelper::editListX();
         JToolBarHelper::addNewX();
+        JToolBarHelper::preferences('com_shopmigrator');
         $model =& $this->getModel('shops');
         $items =& $model->getItems();
         

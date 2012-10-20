@@ -4,7 +4,7 @@
  *
  * @version  1.0
  * @author Daniel Eliasson Stilero Webdesign http://www.stilero.com
- * @copyright  (C) 2012-okt-17 Stilero Webdesign, Stilero AB
+ * @copyright  (C) 2012-okt-20 Stilero Webdesign, Stilero AB
  * @category Components
  * @license	GPLv2
  * 
@@ -13,7 +13,7 @@
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
  * 
- * This file is part of default.
+ * This file is part of dashboard.
  * 
  * ShopMigrator is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,30 +32,19 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
-JRequest::checkToken('get') or die('Invalid Token');
-$MigrateManufacturer = new MigrateManufacturer($this->srcDB, $this->destDB, $this->storeUrl);
-$MigrateManufacturer->setImageFolder($this->mediaManufacturerPath);
-$wasSuccessful = false;
-$output = '';
-//$MigrateManufacturer->clearData();
-$error = 'error';
-switch ($this->migrateTask) {
-    case 'hasNoConflict':
-        $wasSuccessful = $MigrateManufacturer->hasNoConflict();
-        break;
-    case 'migrateManufacturers':
-        $wasSuccessful = $MigrateManufacturer->migrateManufacturers();
-        break;
-    case 'migrateImages':
-        $wasSuccessful = $MigrateManufacturer->migrateImages();
-        break;
-    default:
-        break;
+ 
+// import Joomla view library
+jimport('joomla.application.component.view');
+ 
+/**
+ * HTML View class for the HelloWorld Component
+ */
+class ShopMigratorViewDashboard extends JView
+{
+	// Overwriting JView display method
+    function display($tpl = null){
+        JToolBarHelper::title(JText::_('ShopMigrator Shops', 'generic.png'));
+        JToolBarHelper::preferences('com_shopmigrator');
+        parent::display($tpl);
+    }
 }
-$results = array('code' => 0, 'message' => 'ok');
-if(!$wasSuccessful){
-    $errorMessage = $MigrateManufacturer->getError();
-    $results = array('code' => 1, 'message' => $errorMessage['message']);
-}
-print $json = json_encode($results);
-?>
