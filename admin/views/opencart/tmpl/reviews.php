@@ -33,5 +33,5 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 JRequest::checkToken('get') or die('Invalid Token');
-
+echo MigrateEntity::jsonResult('reviews', $this->srcDB, $this->destDB, $this->storeUrl, '', $this->migrateTask);
 ?>

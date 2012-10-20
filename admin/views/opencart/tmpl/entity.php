@@ -23,7 +23,7 @@ class MigrateEntity {
             $MigrationClass->setImageFolder($mediaPath);
         }
         $wasSuccessful = false;
-        $MigrationClass->clearData();
+        //$MigrationClass->clearData();
         if(method_exists($MigrationClass, $migrateTask) ){
             $wasSuccessful =  $MigrationClass->$migrateTask();
         }

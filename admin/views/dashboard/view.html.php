@@ -23,7 +23,8 @@ class ShopMigratorViewDashboard extends JView
 {
 	// Overwriting JView display method
     function display($tpl = null){
-        JToolBarHelper::title(JText::_('ShopMigrator Shops', 'generic.png'));
+        JHTML::stylesheet(JURI::base().'components/com_shopmigrator/assets/css/layout.css');
+        JToolBarHelper::title(JText::_('Shop Migrator'), 'shopmigrator48.png');
         JToolBarHelper::preferences('com_shopmigrator');
         parent::display($tpl);
     }

@@ -40,7 +40,7 @@
         </languages>
 	<administration>
             <!-- Administration Menu Section -->
-           <menu img="components/com_shopmigrator/assets/images/shopmigrator.png" link="index.php?option=com_shopmigrator">ShopMigrator</menu>
+           <menu img="components/com_shopmigrator/assets/images/shopmigrator-cart-16.png" link="index.php?option=com_shopmigrator">ShopMigrator</menu>
             <files folder="admin">
                     <filename>index.html</filename>
                     <filename>config.xml</filename>
